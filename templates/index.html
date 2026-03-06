@@ -12,7 +12,7 @@
     <!-- Premium Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="C:/Users/krish/OneDrive/Documents/Astrava-Hackathon/static/css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -215,7 +215,7 @@
         </main>
     </div>
 
-    <script src="C:/Users/krish/OneDrive/Documents/Astrava-Hackathon/static/js/script.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 
 </html>
