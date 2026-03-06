@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroVision | Crop Disease Detection</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-leaf text-primary"></i>
+                <h1>Agro<span>Vision</span></h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#analyze">Analyze Crop</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h2 class="hero-title">Protect Your Harvest with <span>AI Precision</span></h2>
+                <p class="hero-subtitle">Instantly detect crop diseases, analyze severity, and get tailored fertilizer recommendations using advanced computer vision.</p>
+                <a href="#analyze" class="btn btn-primary btn-lg">Start Analyzing <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="hero-image">
+                <div class="glass-card hero-glass">
+                    <div class="floating-badge badge-1"><i class="fa-solid fa-check-circle"></i> 99% Accuracy</div>
+                    <div class="floating-badge badge-2"><i class="fa-solid fa-bolt"></i> Instant Results</div>
+                    <div class="hero-img-placeholder">
+                        <i class="fa-solid fa-microscope"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="waves-bottom">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.06,130.83,121.32,194,110.5,238.11,102.93,281.87,83.9,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- Main Analysis Section -->
+    <section id="analyze" class="analysis-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Upload Crop Image</h2>
+                <p>Upload a clear image of your crop's leaf to instantly identify diseases and receive expert recommendations.</p>
+            </div>
+
+            <div class="analysis-grid">
+                <!-- Upload Panel -->
+                <div class="upload-panel glass-card">
+                    <form id="upload-form">
+                        <div class="drag-area" id="drag-area">
+                            <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+                            <h3>Drag & Drop</h3>
+                            <p>or</p>
+                            <button type="button" class="btn btn-outline" id="browse-btn">Browse Files</button>
+                            <input type="file" id="file-input" name="file" accept="image/*" hidden>
+                            <span class="file-info" id="file-info">Supports: JPG, JPEG, PNG</span>
+                        </div>
+                        
+                        <!-- Image Preview -->
+                        <div class="preview-container hidden" id="preview-container">
+                            <img src="" alt="Preview" id="image-preview">
+                            <button type="button" class="btn-remove" id="btn-remove"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block mt-4" id="btn-analyze" disabled>
+                            <span>Analyze Image</span> <i class="fa-solid fa-microchip"></i>
+                        </button>
+                    </form>
+                    
+                    <!-- Loader -->
+                    <div class="loader-container hidden" id="loader">
+                        <div class="spinner"></div>
+                        <p>AI is analyzing your crop...</p>
+                    </div>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="results-panel glass-card hidden" id="results-panel">
+                    <div class="results-header">
+                        <h3>Analysis Results</h3>
+                        <span class="status-badge success" id="overall-status">Analysis Complete</span>
+                    </div>
+
+                    <div class="result-image-container">
+                        <img src="" alt="Result" id="result-image">
+                        <div class="image-overlay-label">AI Detections</div>
+                    </div>
+
+                    <div class="predictions-container" id="predictions-container">
+                        <!-- Prediction cards injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <i class="fa-solid fa-leaf"></i>
+                <h2>Agro<span>Vision</span></h2>
+                <p>Empowering farmers with Artificial Intelligence.</p>
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 AgroVision (Astrava Hackathon). All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

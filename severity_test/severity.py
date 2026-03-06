@@ -4,6 +4,67 @@ import os
 import pandas as pd
 from pathlib import Path
 
+def calculate_severity_from_boxes(img, boxes):
+    """
+    Calculate disease severity directly from an image array and bounding boxes
+    boxes format: [{'class': int, 'bbox': [x1, y1, x2, y2]}]
+    """
+    if img is None:
+        return None
+        
+    height, width = img.shape[:2]
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    
+    # Leaf mask
+    lower_green = np.array([15, 30, 30])
+    upper_green = np.array([90, 255, 255])
+    
+    leaf_mask = cv2.inRange(hsv, lower_green, upper_green)
+    total_leaf_pixels = cv2.countNonZero(leaf_mask)
+    
+    if total_leaf_pixels == 0:
+        return None
+        
+    if not boxes:
+        return None
+        
+    # Disease detection
+    lower_brown = np.array([10, 50, 50]) # Using original values
+    upper_brown = np.array([30, 255, 255])
+    
+    results = []
+    for box in boxes:
+        x1, y1, x2, y2 = box['bbox']
+        
+        # Ensure within bounds
+        x1, y1 = max(0, int(x1)), max(0, int(y1))
+        x2, y2 = min(width, int(x2)), min(height, int(y2))
+        
+        if x2 <= x1 or y2 <= y1:
+            results.append({
+                'class': box['class'],
+                'severity': 0.0,
+                'disease_pixels': 0,
+                'total_leaf_pixels': total_leaf_pixels,
+            })
+            continue
+            
+        roi = hsv[y1:y2, x1:x2]
+        
+        disease_mask = cv2.inRange(roi, lower_brown, upper_brown)
+        disease_pixels = cv2.countNonZero(disease_mask)
+        
+        severity = (disease_pixels / total_leaf_pixels) * 100
+        
+        results.append({
+            'class': box['class'],
+            'severity': round(severity, 2),
+            'disease_pixels': disease_pixels,
+            'total_leaf_pixels': total_leaf_pixels,
+        })
+        
+    return results
+
 def calculate_severity(image_path, txt_path):
     """
     Calculate disease severity from image and bounding boxes
@@ -130,13 +191,14 @@ def process_dataset(image_folder, txt_folder, output_csv="severity_results.csv")
         print("\n❌ No results to save")
         return None
 
-# Set your folders
-image_folder = "C:/Users/krish/OneDrive/Documents/astrava/images"  # Folder with all your images
-txt_folder = "C:/Users/kris/OneDrive/Documents/astrava/labels" # Folder with all your txt files
+if __name__ == '__main__':
+    # Set your folders
+    image_folder = "C:/Users/krish/OneDrive/Documents/astrava/images"  # Folder with all your images
+    txt_folder = "C:/Users/kris/OneDrive/Documents/astrava/labels" # Folder with all your txt files
 
-# Process everything
-results_df = process_dataset(
-    image_folder=image_folder,
-    txt_folder=txt_folder,
-    output_csv="severity_results.csv"
-)
+    # Process everything
+    results_df = process_dataset(
+        image_folder=image_folder,
+        txt_folder=txt_folder,
+        output_csv="severity_results.csv"
+    )
