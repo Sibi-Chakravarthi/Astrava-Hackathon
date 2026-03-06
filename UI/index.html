@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgraVision — Multi-Crop Disease Detection</title>
+    <meta name="description" content="AI-powered drone imagery analysis for multi-crop disease detection across rice, wheat, cotton, and tomato fields.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="main-nav">
+        <div class="nav-brand">
+            <div class="nav-logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="url(#grad1)" stroke-width="2.5"/>
+                    <path d="M16 6 C16 6, 10 14, 10 18 C10 22, 14 24, 16 24 C18 24, 22 22, 22 18 C22 14, 16 6, 16 6Z" fill="url(#grad1)" opacity="0.8"/>
+                    <path d="M16 10 L16 20 M12 16 L20 16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="grad1" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#34d399"/>
+                            <stop offset="100%" stop-color="#059669"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <span class="nav-title">AgraVision</span>
+            <span class="nav-badge">AI</span>
+        </div>
+        <div class="nav-links">
+            <a href="#upload-section" class="nav-link active" data-section="upload">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Scan
+            </a>
+            <a href="#field-section" class="nav-link" data-section="field">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Field Map
+            </a>
+            <a href="#info-section" class="nav-link" data-section="info">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Diseases
+            </a>
+        </div>
+        <div class="nav-status" id="api-status">
+            <span class="status-dot"></span>
+            <span class="status-text">Connecting...</span>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-pattern"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🛰️ Drone-Powered Crop Intelligence</div>
+            <h1>Multi-Crop <span class="gradient-text">Disease Detection</span></h1>
+            <p class="hero-subtitle">AI-powered analysis of rice, wheat, cotton & tomato fields. Upload drone imagery to detect 12+ diseases with severity mapping & treatment recommendations.</p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span class="stat-value">4</span>
+                    <span class="stat-label">Crop Types</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">12+</span>
+                    <span class="stat-label">Diseases</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">&lt;2s</span>
+                    <span class="stat-label">Analysis</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">YOLOv11</span>
+                    <span class="stat-label">Model</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SINGLE IMAGE UPLOAD ===== -->
+    <section class="section" id="upload-section">
+        <div class="section-header">
+            <h2>🔬 Single Image Analysis</h2>
+            <p>Upload a crop image to detect diseases, analyze severity, and get treatment recommendations</p>
+        </div>
+
+        <div class="upload-container">
+            <div class="upload-zone" id="upload-zone">
+                <div class="upload-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <h3>Drop your drone image here</h3>
+                <p>or click to browse • JPG, PNG, WEBP supported</p>
+                <input type="file" id="file-input" accept="image/*" hidden>
+            </div>
+
+            <!-- Image preview -->
+            <div class="preview-container" id="preview-container" style="display:none">
+                <div class="preview-card">
+                    <div class="preview-image-wrapper">
+                        <img id="preview-image" alt="Uploaded crop image">
+                        <div class="preview-overlay" id="preview-overlay">
+                            <div class="spinner"></div>
+                            <span>Analyzing...</span>
+                        </div>
+                    </div>
+                    <div class="preview-info">
+                        <span id="preview-filename"></span>
+                        <button class="btn btn-outline btn-sm" id="btn-change-image">Change Image</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-lg" id="btn-analyze">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Analyze Image
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-container" id="results-container" style="display:none">
+            <!-- Disease Prediction Card -->
+            <div class="result-card prediction-card" id="prediction-card">
+                <div class="card-header">
+                    <h3>🎯 Disease Detection</h3>
+                    <span class="inference-time" id="inference-time"></span>
+                </div>
+                <div class="prediction-main">
+                    <div class="disease-badge" id="disease-badge">
+                        <span class="disease-crop" id="result-crop"></span>
+                        <span class="disease-name" id="result-disease"></span>
+                    </div>
+                    <div class="confidence-ring" id="confidence-ring">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="ring-bg" cx="60" cy="60" r="52"/>
+                            <circle class="ring-fill" cx="60" cy="60" r="52" id="confidence-circle"/>
+                        </svg>
+                        <div class="ring-text">
+                            <span class="ring-value" id="confidence-value">0%</span>
+                            <span class="ring-label">Confidence</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="top5-predictions" id="top5-container"></div>
+            </div>
+
+            <!-- Severity Analysis Card -->
+            <div class="result-card severity-card" id="severity-card">
+                <div class="card-header">
+                    <h3>📊 Severity Analysis</h3>
+                    <span class="severity-badge" id="severity-badge">--</span>
+                </div>
+                <div class="severity-gauge-container">
+                    <div class="severity-gauge">
+                        <div class="gauge-fill" id="severity-fill"></div>
+                        <div class="gauge-markers">
+                            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+                        </div>
+                    </div>
+                    <div class="severity-stats">
+                        <div class="sev-stat">
+                            <span class="sev-stat-value" id="severity-percent">0%</span>
+                            <span class="sev-stat-label">Affected</span>
+                        </div>
+                        <div class="sev-stat">
+                            <span class="sev-stat-value healthy" id="healthy-percent">100%</span>
+                            <span class="sev-stat-label">Healthy</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="heatmap-images">
+                    <div class="heatmap-img-wrapper">
+                        <h4>Disease Heatmap</h4>
+                        <img id="heatmap-image" alt="Disease severity heatmap">
+                    </div>
+                    <div class="heatmap-img-wrapper">
+                        <h4>Annotated View</h4>
+                        <img id="annotated-image" alt="Annotated disease regions">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendation Card -->
+            <div class="result-card recommendation-card" id="recommendation-card">
+                <div class="card-header">
+                    <h3>💊 Treatment & Recommendations</h3>
+                </div>
+                <div class="rec-content">
+                    <div class="rec-description" id="rec-description"></div>
+                    <div class="rec-section">
+                        <h4>🔬 Scientific Name</h4>
+                        <p id="rec-scientific"></p>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚠️ Severity Assessment</h4>
+                        <p id="rec-severity-desc"></p>
+                    </div>
+                    <div class="rec-section">
+                        <h4>💉 Treatment Steps</h4>
+                        <ol id="rec-treatment"></ol>
+                    </div>
+                    <div class="rec-section">
+                        <h4>🌱 Fertilizer Recommendation</h4>
+                        <p id="rec-fertilizer"></p>
+                    </div>
+                    <div class="rec-section">
+                        <h4>🛡️ Prevention</h4>
+                        <p id="rec-prevention"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FIELD MAP SECTION ===== -->
+    <section class="section" id="field-section">
+        <div class="section-header">
+            <h2>🗺️ Field-Level Analysis</h2>
+            <p>Upload multiple drone images from different zones of your field to generate a comprehensive health map</p>
+        </div>
+
+        <div class="field-upload-container">
+            <div class="upload-zone field-upload-zone" id="field-upload-zone">
+                <div class="upload-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                </div>
+                <h3>Drop multiple zone images</h3>
+                <p>Upload images from different field areas • JPG, PNG, WEBP</p>
+                <input type="file" id="field-file-input" accept="image/*" multiple hidden>
+            </div>
+
+            <div class="field-images-preview" id="field-images-preview"></div>
+            
+            <button class="btn btn-primary btn-lg" id="btn-field-analyze" style="display:none">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Generate Field Health Map
+            </button>
+        </div>
+
+        <!-- Field Results -->
+        <div class="field-results" id="field-results" style="display:none">
+            <div class="field-stats-grid" id="field-stats-grid"></div>
+            <div class="field-heatmap-container">
+                <h3>🌡️ Field Severity Heatmap</h3>
+                <img id="field-heatmap" alt="Field severity heatmap">
+            </div>
+            <div class="zone-results" id="zone-results"></div>
+        </div>
+    </section>
+
+    <!-- ===== DISEASE INFO SECTION ===== -->
+    <section class="section" id="info-section">
+        <div class="section-header">
+            <h2>📚 Supported Diseases</h2>
+            <p>Our model detects the following diseases across 4 major crops</p>
+        </div>
+        <div class="crop-tabs">
+            <button class="crop-tab active" data-crop="all">All</button>
+            <button class="crop-tab" data-crop="Rice">🌾 Rice</button>
+            <button class="crop-tab" data-crop="Wheat">🌿 Wheat</button>
+            <button class="crop-tab" data-crop="Cotton">☁️ Cotton</button>
+            <button class="crop-tab" data-crop="Tomato">🍅 Tomato</button>
+        </div>
+        <div class="diseases-grid" id="diseases-grid"></div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="nav-title">AgraVision</span>
+                <p>AI-Powered Crop Disease Detection from Drone Imagery</p>
+            </div>
+            <div class="footer-tech">
+                <span>Built with</span>
+                <div class="tech-badges">
+                    <span class="tech-badge">YOLOv11</span>
+                    <span class="tech-badge">OpenCV</span>
+                    <span class="tech-badge">Flask</span>
+                    <span class="tech-badge">Python</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
