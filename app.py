@@ -4,7 +4,6 @@ import numpy as np
 from flask import Flask, request, jsonify, render_template
 import base64
 from ultralytics import YOLO
-import sys
 
 # Import custom modules
 try:
