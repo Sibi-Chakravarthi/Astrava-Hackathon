@@ -7,12 +7,9 @@ from ultralytics import YOLO
 import sys
 
 # Import custom modules
-sys.path.append(os.path.join(os.path.dirname(__file__), 'severity_test'))
-sys.path.append(os.path.join(os.path.dirname(__file__), 'fertilizer recommendation system'))
-
 try:
-    from severity import calculate_severity_from_boxes
-    from recommendation import recommend
+    from modules.severity import calculate_severity_from_boxes
+    from modules.recommendation import recommend
 except ImportError as e:
     print(f"Warning: Could not import custom modules: {e}")
     # Will define a dummy if needed, but assuming they will be present
@@ -30,7 +27,7 @@ def safe_load(*args, **kwargs):
 torch.load = safe_load
 
 # Load YOLO model
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'Model', 'best.pt')
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'models', 'best.pt')
 try:
     model = YOLO(MODEL_PATH)
     print("YOLO model loaded successfully!")
