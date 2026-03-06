@@ -4,7 +4,7 @@
 [![YOLO11](https://img.shields.io/badge/YOLO-11-success.svg)](https://github.com/ultralytics/ultralytics)
 [![Roboflow](https://img.shields.io/badge/Dataset-Roboflow-purple.svg)](https://roboflow.com)
 
-A comprehensive AI system designed for detecting and analyzing crop diseases from drone imagery. By leveraging advanced instance segmentation (YOLO11-seg), this project enables precision agriculture through pixel-level disease identification, detailed affected area calculations, automated fertilizer recommendations, and temporal health trend analysis.
+A comprehensive AI system designed for detecting and analyzing crop diseases from drone imagery. This project enables precision agriculture through pixel-level disease identification, detailed affected area calculations, automated fertilizer recommendations, and temporal health trend analysis.
 
 ---
 
