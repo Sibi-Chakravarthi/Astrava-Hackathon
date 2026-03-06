@@ -4,7 +4,7 @@
 
 const CONFIG = {
     // Note: ensure this matches your Flask endpoint.
-    API_URL: 'http://localhost:5000/predict',
+    API_URL: '/predict',
 };
 
 // --- DATA: Hardcoded Crop & Disease Definitions (Wait for User confirmation, standard placeholders for now) ---
@@ -41,10 +41,41 @@ const CROP_DISEASES = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    initThemeToggle();
     initNavigation();
     initFarmerPortal();
     initDroneDashboard();
 });
+
+// ==========================================
+// 0. Theme Toggle
+// ==========================================
+function initThemeToggle() {
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    // Check local storage for theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        if (themeIcon) themeIcon.className = 'ri-sun-fill';
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                if (themeIcon) themeIcon.className = 'ri-moon-fill';
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                if (themeIcon) themeIcon.className = 'ri-sun-fill';
+            }
+        });
+    }
+}
 
 // ==========================================
 // 1. Navigation & Routing
@@ -144,7 +175,14 @@ async function analyzeImage(file) {
             body: formData
         });
 
-        if (!response.ok) throw new Error("Server error occurred.");
+        if (!response.ok) {
+            let errorText = "Server error occurred.";
+            try {
+                const errData = await response.json();
+                if (errData.error) errorText = errData.error;
+            } catch (e) { }
+            throw new Error(errorText);
+        }
 
         const data = await response.json();
 
@@ -162,7 +200,7 @@ async function analyzeImage(file) {
     } catch (error) {
         console.error("Analysis Error:", error);
         document.getElementById('scanningOverlay').classList.add('hidden');
-        alert("Failed to connect to backend. Is Flask running?");
+        alert("Analysis failed: " + error.message);
     }
 }
 

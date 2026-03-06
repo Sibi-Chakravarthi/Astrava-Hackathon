@@ -758,3 +758,93 @@ body {
 .hidden {
     display: none !important;
 }
+
+/* ====== Top Nav & Dark Mode ====== */
+.top-nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2rem;
+}
+
+.theme-toggle-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--primary-dark);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: var(--glass-shadow);
+}
+
+.theme-toggle-btn:hover {
+    transform: translateY(-2px);
+    background: white;
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+    --bg-gradient: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+    --glass-bg: rgba(30, 30, 30, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary-dark: #e9ecef;
+    --text-main: #f8f9fa;
+    --text-muted: #adb5bd;
+}
+
+[data-theme="dark"] body {
+    background-image:
+        radial-gradient(at 40% 20%, hsla(140, 40%, 15%, 1) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, hsla(189, 40%, 15%, 1) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, hsla(40, 40%, 15%, 1) 0px, transparent 50%);
+}
+
+[data-theme="dark"] .nav-item.active,
+[data-theme="dark"] .severity-metric,
+[data-theme="dark"] .rec-item,
+[data-theme="dark"] .accordion-header:hover,
+[data-theme="dark"] .accordion-content,
+[data-theme="dark"] .accordion-item.active .accordion-header,
+[data-theme="dark"] .stat-box {
+    background: rgba(45, 45, 45, 0.8);
+    color: var(--text-main);
+    border-color: var(--glass-border);
+}
+
+[data-theme="dark"] .upload-zone {
+    background: rgba(45, 45, 45, 0.3);
+}
+
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .theme-toggle-btn:hover {
+    background: rgba(60, 60, 60, 0.8);
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .circle-bg {
+    stroke: #444;
+}
+
+[data-theme="dark"] .nav-item:hover,
+[data-theme="dark"] .accordion-item {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .btn-crop {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .btn-crop:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .btn-crop.active {
+    background: var(--primary-color);
+    color: white;
+}
