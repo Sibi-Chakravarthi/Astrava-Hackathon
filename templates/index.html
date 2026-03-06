@@ -1,137 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroVision | Crop Disease Detection</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>Astrava - Intelligent Crop Disease System</title>
+    <!-- Modern Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Premium Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="C:/Users/krish/OneDrive/Documents/Astrava-Hackathon/static/css/style.css">
 </head>
+
 <body>
-    
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container nav-container">
-            <div class="logo">
-                <i class="fa-solid fa-leaf text-primary"></i>
-                <h1>Agro<span>Vision</span></h1>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#" class="active">Home</a></li>
-                <li><a href="#analyze">Analyze Crop</a></li>
-                <li><a href="#about">About</a></li>
-            </ul>
-        </div>
-    </nav>
+    <!-- Abstract Background Elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
 
-    <!-- Hero Section -->
-    <header class="hero">
-        <div class="container hero-container">
-            <div class="hero-content">
-                <h2 class="hero-title">Protect Your Harvest with <span>AI Precision</span></h2>
-                <p class="hero-subtitle">Instantly detect crop diseases, analyze severity, and get tailored fertilizer recommendations using advanced computer vision.</p>
-                <a href="#analyze" class="btn btn-primary btn-lg">Start Analyzing <i class="fa-solid fa-arrow-right"></i></a>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-panel">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="ri-leaf-fill"></i>
+                </div>
+                <h2>Astrava</h2>
             </div>
-            <div class="hero-image">
-                <div class="glass-card hero-glass">
-                    <div class="floating-badge badge-1"><i class="fa-solid fa-check-circle"></i> 99% Accuracy</div>
-                    <div class="floating-badge badge-2"><i class="fa-solid fa-bolt"></i> Instant Results</div>
-                    <div class="hero-img-placeholder">
-                        <i class="fa-solid fa-microscope"></i>
+
+            <div class="nav-links">
+                <button class="nav-item active" data-target="farmer-portal" id="navFarmer">
+                    <i class="ri-user-smile-line"></i>
+                    <span>Farmer Portal</span>
+                </button>
+                <button class="nav-item" data-target="drone-dashboard" id="navDrone">
+                    <i class="ri-flight-takeoff-line"></i>
+                    <span>Drone Dashboard</span>
+                </button>
+            </div>
+
+            <div class="nav-footer">
+                <a href="#" class="telegram-btn">
+                    <i class="ri-telegram-fill"></i>
+                    <span>Astrava Bot</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- ====== FARMER PORTAL ====== -->
+            <section id="farmer-portal" class="view-section active">
+                <header class="section-header">
+                    <div>
+                        <h1>Farmer Diagnosis Portal</h1>
+                        <p>Upload a single leaf image for instant disease analysis & severity scoring.</p>
+                    </div>
+                </header>
+
+                <div class="farmer-grid">
+                    <!-- Upload Column -->
+                    <div class="glass-panel upload-card">
+                        <div class="upload-zone" id="farmerUploadZone">
+                            <input type="file" id="farmerImageInput" accept="image/*" hidden>
+                            <div class="upload-icon">
+                                <i class="ri-image-add-line"></i>
+                            </div>
+                            <h3>Drag & Drop Image</h3>
+                            <p>or <span class="text-highlight">click to browse</span></p>
+                            <span class="file-hint">Supports JPG, PNG (Max 10MB)</span>
+                        </div>
+
+                        <div class="preview-zone hidden" id="farmerPreviewZone">
+                            <div class="preview-wrapper">
+                                <img id="farmerPreviewImg" src="" alt="Leaf Preview">
+                                <div class="scanning-overlay hidden" id="scanningOverlay">
+                                    <div class="scan-line"></div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" id="farmerResetBtn">
+                                <i class="ri-refresh-line"></i> New Analysis
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results Column -->
+                    <div class="glass-panel results-card">
+                        <div class="results-placeholder" id="farmerResultsPlaceholder">
+                            <i class="ri-microscope-line"></i>
+                            <p>Upload an image to see the analysis</p>
+                        </div>
+
+                        <div class="results-content hidden" id="farmerResultsContent">
+                            <!-- Severity Metric -->
+                            <div class="severity-metric">
+                                <div class="severity-circle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg" stroke-dasharray="100, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="farmerSeverityCircle" stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="farmerSeverityValue">0<span>%</span></div>
+                                </div>
+                                <div class="severity-info">
+                                    <h3 id="farmerDiseaseName">Detecting...</h3>
+                                    <p>Maximum Severity Found</p>
+                                </div>
+                            </div>
+
+                            <!-- Recommendations -->
+                            <div class="recommendations-box">
+                                <h4><i class="ri-medicine-bottle-line"></i> Treatment Protocol</h4>
+                                <div class="rec-list" id="farmerRecList">
+                                    <!-- Populated via JS -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="waves-bottom">
-            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.06,130.83,121.32,194,110.5,238.11,102.93,281.87,83.9,321.39,56.44Z" class="shape-fill"></path>
-            </svg>
-        </div>
-    </header>
+            </section>
 
-    <!-- Main Analysis Section -->
-    <section id="analyze" class="analysis-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>Upload Crop Image</h2>
-                <p>Upload a clear image of your crop's leaf to instantly identify diseases and receive expert recommendations.</p>
-            </div>
+            <!-- ====== DRONE DASHBOARD ====== -->
+            <section id="drone-dashboard" class="view-section hidden">
+                <header class="section-header">
+                    <div>
+                        <h1>Drone Operations Hub</h1>
+                        <p>Aggregated field data and deep-learning disease detection models.</p>
+                    </div>
+                    <button class="btn btn-primary" id="droneSyncBtn">
+                        <i class="ri-refresh-line"></i> Sync Latest Data
+                    </button>
+                </header>
 
-            <div class="analysis-grid">
-                <!-- Upload Panel -->
-                <div class="upload-panel glass-card">
-                    <form id="upload-form">
-                        <div class="drag-area" id="drag-area">
-                            <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
-                            <h3>Drag & Drop</h3>
-                            <p>or</p>
-                            <button type="button" class="btn btn-outline" id="browse-btn">Browse Files</button>
-                            <input type="file" id="file-input" name="file" accept="image/*" hidden>
-                            <span class="file-info" id="file-info">Supports: JPG, JPEG, PNG</span>
-                        </div>
-                        
-                        <!-- Image Preview -->
-                        <div class="preview-container hidden" id="preview-container">
-                            <img src="" alt="Preview" id="image-preview">
-                            <button type="button" class="btn-remove" id="btn-remove"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-block mt-4" id="btn-analyze" disabled>
-                            <span>Analyze Image</span> <i class="fa-solid fa-microchip"></i>
+                <!-- Crop Selection -->
+                <div class="crop-selector glass-panel">
+                    <h3>Select Crop Model</h3>
+                    <div class="crop-buttons">
+                        <button class="btn-crop active" data-crop="rice">
+                            <i class="ri-seedling-fill"></i> Rice
                         </button>
-                    </form>
-                    
-                    <!-- Loader -->
-                    <div class="loader-container hidden" id="loader">
-                        <div class="spinner"></div>
-                        <p>AI is analyzing your crop...</p>
+                        <button class="btn-crop" data-crop="cotton">
+                            <i class="ri-leaf-fill"></i> Cotton
+                        </button>
+                        <button class="btn-crop" data-crop="tomato">
+                            <i class="ri-restaurant-fill"></i> Tomato
+                        </button>
+                        <button class="btn-crop" data-crop="wheat">
+                            <i class="ri-plant-fill"></i> Wheat
+                        </button>
                     </div>
                 </div>
 
-                <!-- Results Panel -->
-                <div class="results-panel glass-card hidden" id="results-panel">
-                    <div class="results-header">
-                        <h3>Analysis Results</h3>
-                        <span class="status-badge success" id="overall-status">Analysis Complete</span>
+                <div class="drone-grid">
+                    <!-- Disease Index -->
+                    <div class="disease-index glass-panel">
+                        <div class="panel-heading">
+                            <h3><i class="ri-bug-line"></i> Target Diseases (<span id="activeCropName">Apple</span>)
+                            </h3>
+                        </div>
+                        <div class="accordion" id="diseaseAccordion">
+                            <!-- Populated via JS based on selected crop -->
+                        </div>
                     </div>
 
-                    <div class="result-image-container">
-                        <img src="" alt="Result" id="result-image">
-                        <div class="image-overlay-label">AI Detections</div>
-                    </div>
+                    <!-- Scan Results & Heatmap -->
+                    <div class="field-analysis glass-panel">
+                        <div class="panel-heading">
+                            <h3><i class="ri-map-pin-line"></i> Field Scan Analysis</h3>
+                        </div>
 
-                    <div class="predictions-container" id="predictions-container">
-                        <!-- Prediction cards injected by JS -->
+                        <div class="stats-row">
+                            <div class="stat-box">
+                                <span class="stat-label">Images Processed</span>
+                                <span class="stat-value">1,248</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Infected Areas</span>
+                                <span class="stat-value text-danger">42</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Avg Severity</span>
+                                <span class="stat-value text-warning">18%</span>
+                            </div>
+                        </div>
+
+                        <div class="heatmap-container">
+                            <!-- Interactive Heatmap Mockup -->
+                            <div class="heatmap-mockup">
+                                <div class="heatmap-layer"></div>
+                                <div class="hotspot" style="top: 20%; left: 30%;"></div>
+                                <div class="hotspot critical" style="top: 50%; left: 60%;"></div>
+                                <div class="hotspot" style="top: 70%; left: 20%;"></div>
+                                <div class="overlay-text">Field Sector Alpha</div>
+                            </div>
+                        </div>
+
+                        <div class="action-row">
+                            <button class="btn btn-outline">
+                                <i class="ri-file-chart-line"></i> View Detailed Report
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="ri-file-download-line"></i> Export CSV
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
+            </section>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container footer-content">
-            <div class="footer-logo">
-                <i class="fa-solid fa-leaf"></i>
-                <h2>Agro<span>Vision</span></h2>
-                <p>Empowering farmers with Artificial Intelligence.</p>
-            </div>
-            <div class="footer-copy">
-                &copy; 2026 AgroVision (Astrava Hackathon). All rights reserved.
-            </div>
-        </div>
-    </footer>
+        </main>
+    </div>
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="C:/Users/krish/OneDrive/Documents/Astrava-Hackathon/static/js/script.js"></script>
 </body>
+
 </html>

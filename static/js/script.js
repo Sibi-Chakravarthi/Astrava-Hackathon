@@ -1,196 +1,334 @@
+/**
+ * Astrava - Core Logic
+ */
+
+const CONFIG = {
+    // Note: ensure this matches your Flask endpoint.
+    API_URL: 'http://localhost:5000/predict',
+};
+
+// --- DATA: Hardcoded Crop & Disease Definitions (Wait for User confirmation, standard placeholders for now) ---
+const CROP_DISEASES = {
+    'rice': [
+        { name: 'Rice Blast', desc: 'Apply Tricyclazole 75WP. Boost potassium and silica.' },
+        { name: 'Rice Leaf Blight', desc: 'Apply Copper Oxychloride. Reduce nitrogen.' },
+        { name: 'Rice Grain Discoloration', desc: 'Apply Propiconazole. Ensure proper drainage.' },
+        { name: 'Rice Pesticide Residue', desc: 'Stop pesticide application. Flush field with water.' }
+    ],
+    'cotton': [
+        { name: 'Cotton Bacterial Blight', desc: 'Apply Copper-based bactericide. Remove infected leaves.' },
+        { name: 'Cotton Leaf Curl Virus', desc: 'No cure — remove infected plants. Apply imidacloprid for whitefly control.' },
+        { name: 'Cotton Grey Mildew', desc: 'Apply Carbendazim. Improve air circulation.' },
+        { name: 'Cotton Alternaria Leaf Spot', desc: 'Apply Mancozeb. Avoid overhead irrigation.' },
+        { name: 'Cotton Wilt', desc: 'Drench soil with Carbendazim. Improve drainage.' }
+    ],
+    'tomato': [
+        { name: 'Tomato Early Blight', desc: 'Apply Chlorothalonil. Mulch around base of plant.' },
+        { name: 'Tomato Late Blight', desc: 'Apply Metalaxyl + Mancozeb immediately. Remove infected tissue.' },
+        { name: 'Tomato Bacterial Spot', desc: 'Apply Copper Hydroxide. Avoid working in wet conditions.' },
+        { name: 'Tomato Septoria Leaf Spot', desc: 'Apply Chlorothalonil or Mancozeb. Remove lower leaves.' },
+        { name: 'Tomato Mosaic Virus', desc: 'No cure — remove and destroy infected plants. Control aphids.' },
+        { name: 'Tomato Yellow Leaf Curl Virus', desc: 'No cure — remove infected plants. Apply thiamethoxam for whitefly.' },
+        { name: 'Tomato Leaf Mold', desc: 'Apply Copper Oxychloride. Reduce humidity.' },
+        { name: 'Tomato Spider Mite', desc: 'Apply Abamectin or neem oil. Increase humidity.' }
+    ],
+    'wheat': [
+        { name: 'Wheat Powdery Mildew', desc: 'Apply Tebuconazole. Avoid excess nitrogen.' },
+        { name: 'Wheat Septoria Leaf Blotch', desc: 'Apply Propiconazole. Remove crop debris after harvest.' },
+        { name: 'Wheat Stem Rust', desc: 'Apply Tebuconazole or Propiconazole immediately.' },
+        { name: 'Wheat Yellow Rust', desc: 'Apply Tebuconazole. Monitor weekly for spread.' }
+    ]
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Elements
-    const dropArea = document.getElementById('drag-area');
-    const fileInput = document.getElementById('file-input');
-    const browseBtn = document.getElementById('browse-btn');
-    const previewContainer = document.getElementById('preview-container');
-    const imagePreview = document.getElementById('image-preview');
-    const btnRemove = document.getElementById('btn-remove');
-    const btnAnalyze = document.getElementById('btn-analyze');
-    const uploadForm = document.getElementById('upload-form');
-    
-    const loader = document.getElementById('loader');
-    const resultsPanel = document.getElementById('results-panel');
-    const resultImage = document.getElementById('result-image');
-    const predictionsContainer = document.getElementById('predictions-container');
+    initNavigation();
+    initFarmerPortal();
+    initDroneDashboard();
+});
 
-    let currentFile = null;
+// ==========================================
+// 1. Navigation & Routing
+// ==========================================
+function initNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.view-section');
 
-    // --- File Upload Logic ---
-    browseBtn.addEventListener('click', () => {
-        fileInput.click();
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Update Active Nav Icon
+            navItems.forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+
+            // Switch Section Views
+            const targetId = item.getAttribute('data-target');
+            sections.forEach(sec => {
+                if (sec.id === targetId) {
+                    sec.classList.remove('hidden');
+                    sec.classList.add('active');
+                } else {
+                    sec.classList.remove('active');
+                    sec.classList.add('hidden');
+                }
+            });
+        });
     });
+}
 
-    fileInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-            handleFile(file);
-        }
-    });
+// ==========================================
+// 2. Farmer Portal (Upload & Analysis)
+// ==========================================
+function initFarmerPortal() {
+    const uploadZone = document.getElementById('farmerUploadZone');
+    const fileInput = document.getElementById('farmerImageInput');
+    const previewZone = document.getElementById('farmerPreviewZone');
+    const previewImg = document.getElementById('farmerPreviewImg');
+    const scanningOverlay = document.getElementById('scanningOverlay');
+    const resetBtn = document.getElementById('farmerResetBtn');
 
-    // Drag and drop events
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
+    // Drag and Drop Events
+    uploadZone.addEventListener('dragover', (e) => {
         e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.add('active'), false);
+        uploadZone.classList.add('dragover');
     });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.remove('active'), false);
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
     });
-
-    dropArea.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const file = dt.files[0];
-        
-        if (file && file.type.startsWith('image/')) {
-            fileInput.files = dt.files; // assign to input
-            handleFile(file);
-        } else {
-            alert('Please upload an image file.');
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFarmerUpload(e.dataTransfer.files[0]);
         }
     });
 
-    function handleFile(file) {
-        currentFile = file;
-        
-        // Show preview
+    // Click Upload
+    uploadZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            handleFarmerUpload(e.target.files[0]);
+        }
+    });
+
+    // Reset Button
+    resetBtn.addEventListener('click', resetFarmerPortal);
+
+    function handleFarmerUpload(file) {
+        // Validate
+        if (!file.type.startsWith('image/')) {
+            alert("Please upload a valid image file.");
+            return;
+        }
+
+        // Show Local Preview Immediately
         const reader = new FileReader();
         reader.onload = (e) => {
-            imagePreview.src = e.target.result;
-            dropArea.classList.add('hidden');
-            previewContainer.classList.remove('hidden');
-            btnAnalyze.disabled = false;
+            previewImg.src = e.target.result;
+            uploadZone.classList.add('hidden');
+            previewZone.classList.remove('hidden');
+            scanningOverlay.classList.remove('hidden'); // Show Scanning Animation
+
+            // Call API
+            analyzeImage(file);
         };
         reader.readAsDataURL(file);
-        
-        // Hide previous results
-        resultsPanel.classList.add('hidden');
+    }
+}
+
+async function analyzeImage(file) {
+    const formData = new FormData();
+    formData.append('file', file); // app.py expects 'file'
+
+    try {
+        const response = await fetch(CONFIG.API_URL, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error("Server error occurred.");
+
+        const data = await response.json();
+
+        // Hide Scanning Overlay
+        document.getElementById('scanningOverlay').classList.add('hidden');
+
+        if (data.error) {
+            alert(data.error);
+            resetFarmerPortal();
+            return;
+        }
+
+        renderFarmerResults(data);
+
+    } catch (error) {
+        console.error("Analysis Error:", error);
+        document.getElementById('scanningOverlay').classList.add('hidden');
+        alert("Failed to connect to backend. Is Flask running?");
+    }
+}
+
+function renderFarmerResults(data) {
+    // 1. Update Image to bounded box version generated by app.py
+    if (data.image) {
+        document.getElementById('farmerPreviewImg').src = data.image;
     }
 
-    btnRemove.addEventListener('click', () => {
-        currentFile = null;
-        fileInput.value = '';
-        imagePreview.src = '';
-        previewContainer.classList.add('hidden');
-        dropArea.classList.remove('hidden');
-        btnAnalyze.disabled = true;
-    });
+    // 2. Compute Max Severity and dominant disease
+    let maxSeverity = 0;
+    let dominantDisease = 'Unknown';
+    let recommendations = [];
 
-    // --- Form Submission Logic ---
-    uploadForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        if (!currentFile) return;
-
-        const formData = new FormData();
-        formData.append('file', currentFile);
-
-        // UI States
-        btnAnalyze.disabled = true;
-        loader.classList.remove('hidden');
-        resultsPanel.classList.add('hidden');
-
-        try {
-            const response = await fetch('/predict', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Server error occurred');
+    if (data.predictions && data.predictions.length > 0) {
+        data.predictions.forEach(p => {
+            if (p.severity > maxSeverity) {
+                maxSeverity = p.severity;
+                dominantDisease = p.class_name;
             }
+            if (p.recommendation && !recommendations.includes(p.recommendation)) {
+                recommendations.push(p.recommendation);
+            }
+        });
+    }
 
-            // Display Results
-            displayResults(data);
+    // Fallback if healthy or not finding anything sever
+    if (maxSeverity === 0 && data.predictions.length > 0) {
+        dominantDisease = data.predictions[0].class_name; // might be "healthy"
+        recommendations.push(data.predictions[0].recommendation || "No immediate action required.");
+    }
 
-        } catch (error) {
-            console.error('Error:', error);
-            alert(`Error analyzing image: ${error.message}`);
-        } finally {
-            loader.classList.add('hidden');
-            btnAnalyze.disabled = false;
-        }
-    });
+    // 3. Update DOM
+    document.getElementById('farmerResultsPlaceholder').classList.add('hidden');
+    document.getElementById('farmerResultsContent').classList.remove('hidden');
 
-    function displayResults(data) {
-        // Set processed image
-        resultImage.src = data.image;
-        
-        // Clear previous predictions
-        predictionsContainer.innerHTML = '';
+    document.getElementById('farmerDiseaseName').innerText = dominantDisease.replace(/_/g, ' ');
 
-        if (!data.predictions || data.predictions.length === 0) {
-            predictionsContainer.innerHTML = `
-                <div class="prediction-card healthy">
-                    <div class="pred-header">
-                        <div class="pred-title">
-                            <h4>No Diseases Detected</h4>
-                        </div>
-                    </div>
-                    <p>No agricultural diseases were identified in the image.</p>
+    // Animate Circle
+    const circle = document.getElementById('farmerSeverityCircle');
+    const valueEl = document.getElementById('farmerSeverityValue');
+
+    // SVG circle dasharray animation (100 is full circumference here)
+    circle.style.strokeDasharray = `${maxSeverity}, 100`;
+    valueEl.innerHTML = `${Math.round(maxSeverity)}<span>%</span>`;
+
+    // Change circle color based on severity
+    if (maxSeverity < 20) circle.style.stroke = 'var(--success-color)';
+    else if (maxSeverity < 50) circle.style.stroke = 'var(--warning-color)';
+    else circle.style.stroke = 'var(--danger-color)';
+
+    // 4. Update Recommendations List
+    const recList = document.getElementById('farmerRecList');
+    recList.innerHTML = ''; // clear old
+
+    if (recommendations.length === 0) {
+        recList.innerHTML = `<div class="rec-item"><span>No specific treatment found.</span></div>`;
+    } else {
+        recommendations.forEach(rec => {
+            recList.innerHTML += `
+                <div class="rec-item">
+                    <strong>Primary Treatment</strong>
+                    <span>${rec}</span>
                 </div>
             `;
-        } else {
-            // Render each prediction
-            data.predictions.forEach(pred => {
-                const isHealthy = pred.class_name.toLowerCase().includes('healthy');
-                const cardClass = isHealthy ? 'healthy' : 'disease';
-                
-                // Determine severity styling
-                let severityClass = 'severity-low';
-                let severityText = `${pred.severity.toFixed(1)}%`;
-                
-                if (isHealthy) {
-                    severityText = "N/A";
-                } else if (pred.severity > 30) {
-                    severityClass = 'severity-high';
-                } else if (pred.severity > 10) {
-                    severityClass = 'severity-med';
-                }
-
-                const sourceHtml = pred.source ? 
-                    `<div class="pred-source">
-                        <strong>Source:</strong> <a href="${pred.source}" target="_blank">View reference material</a>
-                    </div>` : '';
-
-                const cardHtml = `
-                    <div class="prediction-card ${cardClass}">
-                        <div class="pred-header">
-                            <div class="pred-title">
-                                <h4>${pred.class_name.replace(/_/g, ' ')}</h4>
-                            </div>
-                            <div class="pred-severity ${severityClass}">
-                                Severity: ${severityText}
-                            </div>
-                        </div>
-                        
-                        <div class="pred-recommendation">
-                            <h5><i class="fa-solid ${isHealthy ? 'fa-circle-check' : 'fa-prescription-bottle-medical'}"></i> Recommendation</h5>
-                            <p>${pred.recommendation}</p>
-                        </div>
-                        ${sourceHtml}
-                    </div>
-                `;
-                predictionsContainer.insertAdjacentHTML('beforeend', cardHtml);
-            });
-        }
-
-        // Show panel
-        resultsPanel.classList.remove('hidden');
-        
-        // Scroll to results on mobile
-        if(window.innerWidth < 900) {
-            resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        });
     }
-});
+}
+
+function resetFarmerPortal() {
+    document.getElementById('farmerImageInput').value = '';
+    document.getElementById('farmerPreviewImg').src = '';
+
+    document.getElementById('farmerPreviewZone').classList.add('hidden');
+    document.getElementById('farmerUploadZone').classList.remove('hidden');
+
+    document.getElementById('farmerResultsContent').classList.add('hidden');
+    document.getElementById('farmerResultsPlaceholder').classList.remove('hidden');
+
+    // reset circle
+    document.getElementById('farmerSeverityCircle').style.strokeDasharray = '0, 100';
+    document.getElementById('farmerSeverityValue').innerHTML = `0<span>%</span>`;
+}
+
+
+// ==========================================
+// 3. Drone Dashboard Logic
+// ==========================================
+function initDroneDashboard() {
+    const cropBtns = document.querySelectorAll('.btn-crop');
+
+    // Initialize first crop (Rice)
+    renderDiseases('rice');
+
+    cropBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active state
+            cropBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Get crop string and display
+            const cropType = btn.getAttribute('data-crop');
+            // update UI label
+            document.getElementById('activeCropName').innerText = btn.innerText.trim();
+
+            renderDiseases(cropType);
+        });
+    });
+}
+
+function renderDiseases(cropKey) {
+    const accordion = document.getElementById('diseaseAccordion');
+    accordion.innerHTML = ''; // clear previous
+
+    const diseases = CROP_DISEASES[cropKey] || [];
+
+    if (diseases.length === 0) {
+        accordion.innerHTML = '<p class="text-muted" style="padding:1rem;">No data available.</p>';
+        return;
+    }
+
+    diseases.forEach((disease, idx) => {
+        const item = document.createElement('div');
+        item.className = 'accordion-item';
+
+        item.innerHTML = `
+            <div class="accordion-header">
+                <span>${disease.name}</span>
+                <i class="ri-arrow-down-s-line icon-chevron"></i>
+            </div>
+            <div class="accordion-content">
+                <p style="padding-bottom: 1rem;">${disease.desc}</p>
+            </div>
+        `;
+
+        // Click event for accordion toggle
+        item.querySelector('.accordion-header').addEventListener('click', function () {
+            // close others
+            Array.from(accordion.children).forEach(child => {
+                if (child !== item) {
+                    child.classList.remove('active');
+                    const content = child.querySelector('.accordion-content');
+                    content.style.maxHeight = null;
+                }
+            });
+
+            // toggle current
+            item.classList.toggle('active');
+            const content = item.querySelector('.accordion-content');
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+            } else {
+                content.style.maxHeight = null;
+            }
+        });
+
+        // Open first item by default
+        if (idx === 0) {
+            // Use timeout to allow DOM to render before calculating scrollHeight
+            setTimeout(() => {
+                item.classList.add('active');
+                const content = item.querySelector('.accordion-content');
+                content.style.maxHeight = content.scrollHeight + "px";
+            }, 10);
+        }
+
+        accordion.appendChild(item);
+    });
+}
