@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFarmerPortal();
     initDroneDashboard();
     initLocationControls();
+    initTimeSeries();
 });
 
 // ==========================================
@@ -69,12 +70,29 @@ function initThemeToggle() {
                 document.body.removeAttribute('data-theme');
                 localStorage.setItem('theme', 'light');
                 if (themeIcon) themeIcon.className = 'ri-moon-fill';
+                updateChartTheme('light');
             } else {
                 document.body.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
                 if (themeIcon) themeIcon.className = 'ri-sun-fill';
+                updateChartTheme('dark');
             }
         });
+    }
+}
+
+function updateChartTheme(theme) {
+    if (typeof timeSeriesChartInstance !== 'undefined' && timeSeriesChartInstance) {
+        const isDark = theme === 'dark';
+        const textColor = isDark ? '#f8fafc' : '#1e293b';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        
+        timeSeriesChartInstance.options.plugins.legend.labels.color = textColor;
+        timeSeriesChartInstance.options.scales.x.ticks.color = textColor;
+        timeSeriesChartInstance.options.scales.x.grid.color = gridColor;
+        timeSeriesChartInstance.options.scales.y.ticks.color = textColor;
+        timeSeriesChartInstance.options.scales.y.grid.color = gridColor;
+        timeSeriesChartInstance.update();
     }
 }
 
@@ -473,6 +491,156 @@ function initLocationControls() {
             }, 800);
         } else {
             locationDisplay.classList.add('hidden');
+        }
+    });
+}
+
+// ==========================================
+// 6. Time Series Portal Logic
+// ==========================================
+let timeSeriesChartInstance = null;
+function initTimeSeries() {
+    const syncBtn = document.getElementById('timeSeriesSyncBtn');
+    if (syncBtn) {
+        syncBtn.addEventListener('click', fetchTimeSeriesData);
+    }
+    
+    // Fetch data when navigating to the tab for the first time
+    const navBtn = document.getElementById('navTimeSeries');
+    if (navBtn) {
+        navBtn.addEventListener('click', () => {
+             if (!timeSeriesChartInstance) {
+                 fetchTimeSeriesData();
+             }
+        });
+    }
+}
+
+async function fetchTimeSeriesData() {
+    try {
+        const syncBtn = document.getElementById('timeSeriesSyncBtn');
+        if (syncBtn) {
+            syncBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Loading...';
+            syncBtn.disabled = true;
+        }
+
+        const response = await fetch('/api/time_series_data');
+        if (!response.ok) throw new Error("Failed to fetch time series data");
+        const data = await response.json();
+        
+        renderTimeSeriesChart(data);
+
+        if (syncBtn) {
+            syncBtn.innerHTML = '<i class="ri-refresh-line"></i> Refresh Data';
+            syncBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error("Error fetching time series data:", error);
+        alert("Failed to load time series data.");
+        const syncBtn = document.getElementById('timeSeriesSyncBtn');
+        if (syncBtn) {
+            syncBtn.innerHTML = '<i class="ri-refresh-line"></i> Refresh Data';
+            syncBtn.disabled = false;
+        }
+    }
+}
+
+function renderTimeSeriesChart(data) {
+    const ctx = document.getElementById('timeSeriesChart');
+    if (!ctx) return;
+
+    if (timeSeriesChartInstance) {
+        timeSeriesChartInstance.destroy();
+    }
+    
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#f8fafc' : '#1e293b';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+    // Astrava Colors for different crops
+    const colors = {
+        'Rice': { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },    // Emerald
+        'Cotton': { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' }, // Blue
+        'Tomato': { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },  // Red
+        'Wheat': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' }   // Amber
+    };
+    
+    // Default fallback color
+    const defaultColor = { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' };
+
+    const chartDatasets = data.datasets.map(ds => {
+        const theme = colors[ds.label] || defaultColor;
+        return {
+            label: `${ds.label} Health`,
+            data: ds.data,
+            borderColor: theme.border,
+            backgroundColor: theme.bg,
+            borderWidth: 3,
+            tension: 0.4,
+            fill: false, 
+            pointBackgroundColor: theme.border,
+            pointRadius: 3,
+            pointHoverRadius: 6
+        };
+    });
+
+    timeSeriesChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.dates,
+            datasets: chartDatasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { 
+                        color: textColor, 
+                        font: { family: 'Outfit, sans-serif', size: 13 },
+                        usePointStyle: true,
+                        boxWidth: 8
+                    }
+                },
+                tooltip: {
+                    backgroundColor: isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255,255,255,0.95)',
+                    titleColor: isDark ? '#f8fafc' : '#0f172a',
+                    bodyColor: isDark ? '#cbd5e1' : '#334155',
+                    borderColor: gridColor,
+                    borderWidth: 1,
+                    padding: 12,
+                    boxPadding: 6,
+                    usePointStyle: true,
+                    callbacks: {
+                        label: function(context) {
+                            return ` ${context.dataset.label}: ${context.parsed.y}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor, drawBorder: false },
+                    ticks: { color: textColor, font: { family: 'Outfit, sans-serif' }, maxTicksLimit: 15 },
+                    title: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: gridColor, borderDash: [5, 5], drawBorder: false },
+                    ticks: { 
+                        color: textColor, 
+                        font: { family: 'Outfit, sans-serif' },
+                        callback: function(value) { return value + '%'; }
+                    },
+                    title: { display: true, text: 'Overall Health Rate (%)', color: textColor, font: { size: 13 } }
+                }
+            }
         }
     });
 }
