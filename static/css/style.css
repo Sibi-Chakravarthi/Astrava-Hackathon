@@ -798,7 +798,7 @@ body {
     --text-muted: #adb5bd;
 }
 
-/* ====== Heatmap Portal ====== */
+/* ====== Field Health Overlay ====== */
 .heatmap-panel {
     padding: 2rem;
     min-height: 400px;

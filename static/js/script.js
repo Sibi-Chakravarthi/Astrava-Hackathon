@@ -450,7 +450,7 @@ function initHeatmapPortal() {
 
         } catch (err) {
             console.error(err);
-            alert("Error generating heatmap: " + err.message);
+            alert("Error generating overlay: " + err.message);
             resetHeatmap();
         }
     }
