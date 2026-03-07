@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initFarmerPortal();
     initDroneDashboard();
-    initHeatmapPortal();
     initLocationControls();
 });
 
@@ -373,96 +372,6 @@ function renderDiseases(cropKey) {
     });
 }
 
-// ==========================================
-// 4. Heatmap Portal Logic
-// ==========================================
-function initHeatmapPortal() {
-    const uploadZone = document.getElementById('heatmapUploadZone');
-    const fileInput = document.getElementById('heatmapImageInput');
-    const gallery = document.getElementById('heatmapGallery');
-    const processing = document.getElementById('heatmapProcessing');
-
-    if (!uploadZone) return; // safety check
-
-    uploadZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadZone.classList.add('dragover');
-    });
-    uploadZone.addEventListener('dragleave', () => {
-        uploadZone.classList.remove('dragover');
-    });
-    uploadZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadZone.classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            handleBulkUpload(e.dataTransfer.files);
-        }
-    });
-
-    uploadZone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-            handleBulkUpload(e.target.files);
-        }
-    });
-
-    async function handleBulkUpload(files) {
-        uploadZone.classList.add('hidden');
-        processing.classList.remove('hidden');
-        gallery.innerHTML = '';
-        gallery.classList.add('hidden');
-
-        const formData = new FormData();
-        Array.from(files).forEach(file => {
-            formData.append('files', file);
-        });
-
-        try {
-            const response = await fetch('/generate_heatmap', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) throw new Error("Server error");
-            const data = await response.json();
-
-            if (data.error) {
-                alert(data.error);
-                resetHeatmap();
-                return;
-            }
-
-            // Render gallery
-            if (data.results && data.results.length > 0) {
-                data.results.forEach(res => {
-                    gallery.innerHTML += `
-                        <div class="heatmap-item">
-                            <img src="${res.image}" alt="${res.filename}">
-                            <div class="file-name" title="${res.filename}">${res.filename}</div>
-                        </div>
-                    `;
-                });
-                processing.classList.add('hidden');
-                gallery.classList.remove('hidden');
-            } else {
-                alert("No valid images processed.");
-                resetHeatmap();
-            }
-
-        } catch (err) {
-            console.error(err);
-            alert("Error generating overlay: " + err.message);
-            resetHeatmap();
-        }
-    }
-
-    function resetHeatmap() {
-        uploadZone.classList.remove('hidden');
-        processing.classList.add('hidden');
-        gallery.classList.add('hidden');
-        fileInput.value = '';
-    }
-}
 
 // ==========================================
 // 5. Location Controls Logic
