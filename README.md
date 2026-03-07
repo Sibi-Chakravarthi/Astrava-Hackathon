@@ -64,4 +64,4 @@ The models are trained using comprehensive, high-quality datasets for multiple c
 
 ---
 
-*Built with ❤️ by Team AgroVision.*
+*Built with ❤️ by Team Tomato Chutney.*
