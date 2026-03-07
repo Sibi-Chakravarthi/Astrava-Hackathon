@@ -148,6 +148,23 @@
                     </button>
                 </header>
 
+                <div class="location-controls glass-panel">
+                    <div class="location-inputs">
+                        <div class="input-group">
+                            <i class="ri-map-pin-line"></i>
+                            <input type="text" id="farmCoordinates"
+                                placeholder="Enter Coordinates (e.g. 34.05, -118.24)" />
+                        </div>
+                        <button class="btn btn-secondary" id="useLocationBtn">
+                            <i class="ri-focus-3-line"></i> Use Current Location
+                        </button>
+                    </div>
+                    <div id="locationDisplay" class="location-display hidden">
+                        <span class="text-success"><i class="ri-check-line"></i> Location Verified:</span>
+                        <strong id="coordsText">--</strong>
+                    </div>
+                </div>
+
                 <!-- Crop Selection -->
                 <div class="crop-selector glass-panel">
                     <h3>Select Crop Model</h3>
@@ -171,7 +188,7 @@
                     <!-- Disease Index -->
                     <div class="disease-index glass-panel">
                         <div class="panel-heading">
-                            <h3><i class="ri-bug-line"></i> Target Diseases (<span id="activeCropName">Apple</span>)
+                            <h3><i class="ri-bug-line"></i> Target Diseases (<span id="activeCropName">Rice</span>)
                             </h3>
                         </div>
                         <div class="accordion" id="diseaseAccordion">
@@ -202,12 +219,8 @@
 
                         <div class="heatmap-container">
                             <!-- Interactive Heatmap Mockup -->
-                            <div class="heatmap-mockup">
-                                <div class="heatmap-layer"></div>
-                                <div class="hotspot" style="top: 20%; left: 30%;"></div>
-                                <div class="hotspot critical" style="top: 50%; left: 60%;"></div>
-                                <div class="hotspot" style="top: 70%; left: 20%;"></div>
-                                <div class="overlay-text">Field Sector Alpha</div>
+                            <div class="heatmap-mockup" id="dashboardHeatmap">
+                                <div class="overlay-text" id="dashboardFieldText">Field Sector Alpha</div>
                             </div>
                         </div>
 
@@ -231,6 +244,8 @@
                         <p>Upload bulk drone images to generate disease overlays based on crop class and severity.</p>
                     </div>
                 </header>
+
+
 
                 <div class="heatmap-panel glass-panel">
                     <div class="upload-zone" id="heatmapUploadZone">

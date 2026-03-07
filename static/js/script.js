@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFarmerPortal();
     initDroneDashboard();
     initHeatmapPortal();
+    initLocationControls();
 });
 
 // ==========================================
@@ -461,4 +462,108 @@ function initHeatmapPortal() {
         gallery.classList.add('hidden');
         fileInput.value = '';
     }
+}
+
+// ==========================================
+// 5. Location Controls Logic
+// ==========================================
+function initLocationControls() {
+    const useLocationBtn = document.getElementById('useLocationBtn');
+    const coordsInput = document.getElementById('farmCoordinates');
+    const locationDisplay = document.getElementById('locationDisplay');
+    const coordsText = document.getElementById('coordsText');
+    const dashboardHeatmap = document.getElementById('dashboardHeatmap');
+    const dashboardFieldText = document.getElementById('dashboardFieldText');
+
+    if (!useLocationBtn) return;
+
+    // Helper to request a high-resolution satellite map based on coordinates
+    function updateDashboardHeatmap(locString) {
+        if (!dashboardHeatmap) return;
+
+        // Parse the lat/lon string
+        const parts = locString.split(',');
+        if (parts.length === 2) {
+            const lat = parseFloat(parts[0].trim());
+            const lon = parseFloat(parts[1].trim());
+
+            if (!isNaN(lat) && !isNaN(lon)) {
+                // Calculate an approximate bounding box (roughly 500-1000m wide)
+                const offset = 0.005; // degree offset
+                const minLon = lon - offset;
+                const minLat = lat - offset;
+                const maxLon = lon + offset;
+                const maxLat = lat + offset;
+
+                // ArcGIS REST MapServer Export API
+                // bbox format: minX,minY,maxX,maxY (lon,lat,lon,lat)
+                const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
+                const mapUrl = `https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/export?bbox=${bbox}&bboxSR=4326&size=800,600&imageSR=102100&format=jpg&f=image`;
+
+                dashboardHeatmap.style.backgroundImage = `url('${mapUrl}')`;
+                dashboardHeatmap.style.backgroundSize = 'cover';
+                dashboardHeatmap.style.backgroundPosition = 'center';
+            }
+        }
+
+        if (dashboardFieldText) {
+            dashboardFieldText.innerText = `Scanned: ${locString}`;
+        }
+    }
+
+    useLocationBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        useLocationBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Locating...';
+        useLocationBtn.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude.toFixed(5);
+                const lon = position.coords.longitude.toFixed(5);
+                const coordsString = `${lat}, ${lon}`;
+
+                // Update input and display areas
+                coordsInput.value = coordsString;
+                coordsText.innerText = coordsString;
+                locationDisplay.classList.remove('hidden');
+
+                // Update Background Heatmap
+                updateDashboardHeatmap(coordsString);
+
+                // Reset button
+                useLocationBtn.innerHTML = '<i class="ri-focus-3-line"></i> Use Current Location';
+                useLocationBtn.disabled = false;
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                alert('Unable to retrieve your location. Please ensure location services are enabled.');
+                // Reset button
+                useLocationBtn.innerHTML = '<i class="ri-focus-3-line"></i> Use Current Location';
+                useLocationBtn.disabled = false;
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    });
+
+    // Also update display if user manually types coordinates
+    // We'll use a short debounce so we don't rapid-fire image requests
+    let typingTimer;
+    coordsInput.addEventListener('input', (e) => {
+        clearTimeout(typingTimer);
+
+        if (e.target.value.trim().length > 0) {
+            coordsText.innerText = e.target.value;
+            locationDisplay.classList.remove('hidden');
+
+            typingTimer = setTimeout(() => {
+                updateDashboardHeatmap(e.target.value);
+            }, 800);
+        } else {
+            locationDisplay.classList.add('hidden');
+        }
+    });
 }
