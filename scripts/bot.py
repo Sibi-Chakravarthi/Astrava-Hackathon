@@ -34,13 +34,13 @@ user_languages = {}
 # Supported languages and their corresponding Google translate code and Edge-TTS voice
 LANGUAGES = {
     "en": {"name": "English", "tts_voice": "en-US-JennyNeural"},
-    "hi": {"name": "Hindi", "tts_voice": "hi-IN-SwaraNeural"},
-    "ta": {"name": "Tamil", "tts_voice": "ta-IN-PallaviNeural"},
-    "te": {"name": "Telugu", "tts_voice": "te-IN-ShrutiNeural"},
-    "kn": {"name": "Kannada", "tts_voice": "kn-IN-SapnaNeural"},
-    "ml": {"name": "Malayalam", "tts_voice": "ml-IN-SobhanaNeural"},
-    "mr": {"name": "Marathi", "tts_voice": "mr-IN-AarohiNeural"},
-    "bn": {"name": "Bengali", "tts_voice": "bn-IN-TanishaaNeural"}
+    "hi": {"name": "हिंदी", "tts_voice": "hi-IN-SwaraNeural"},
+    "ta": {"name": "தமிழ்", "tts_voice": "ta-IN-PallaviNeural"},
+    "te": {"name": "తెలుగు", "tts_voice": "te-IN-ShrutiNeural"},
+    "kn": {"name": "ಕನ್ನಡ", "tts_voice": "kn-IN-SapnaNeural"},
+    "ml": {"name": "മലയാളം", "tts_voice": "ml-IN-SobhanaNeural"},
+    "mr": {"name": "मराठी", "tts_voice": "mr-IN-AarohiNeural"},
+    "bn": {"name": "বাংলা", "tts_voice": "bn-IN-TanishaaNeural"}
 }
 
 # Load YOLO model
