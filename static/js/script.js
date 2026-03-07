@@ -86,7 +86,7 @@ function updateChartTheme(theme) {
         const isDark = theme === 'dark';
         const textColor = isDark ? '#f8fafc' : '#1e293b';
         const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-        
+
         timeSeriesChartInstance.options.plugins.legend.labels.color = textColor;
         timeSeriesChartInstance.options.scales.x.ticks.color = textColor;
         timeSeriesChartInstance.options.scales.x.grid.color = gridColor;
@@ -376,15 +376,6 @@ function renderDiseases(cropKey) {
             }
         });
 
-        // Open first item by default
-        if (idx === 0) {
-            // Use timeout to allow DOM to render before calculating scrollHeight
-            setTimeout(() => {
-                item.classList.add('active');
-                const content = item.querySelector('.accordion-content');
-                content.style.maxHeight = content.scrollHeight + "px";
-            }, 10);
-        }
 
         accordion.appendChild(item);
     });
@@ -504,14 +495,14 @@ function initTimeSeries() {
     if (syncBtn) {
         syncBtn.addEventListener('click', fetchTimeSeriesData);
     }
-    
+
     // Fetch data when navigating to the tab for the first time
     const navBtn = document.getElementById('navTimeSeries');
     if (navBtn) {
         navBtn.addEventListener('click', () => {
-             if (!timeSeriesChartInstance) {
-                 fetchTimeSeriesData();
-             }
+            if (!timeSeriesChartInstance) {
+                fetchTimeSeriesData();
+            }
         });
     }
 }
@@ -527,7 +518,7 @@ async function fetchTimeSeriesData() {
         const response = await fetch('/api/time_series_data');
         if (!response.ok) throw new Error("Failed to fetch time series data");
         const data = await response.json();
-        
+
         renderTimeSeriesChart(data);
 
         if (syncBtn) {
@@ -552,7 +543,7 @@ function renderTimeSeriesChart(data) {
     if (timeSeriesChartInstance) {
         timeSeriesChartInstance.destroy();
     }
-    
+
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     const textColor = isDark ? '#f8fafc' : '#1e293b';
     const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
@@ -564,7 +555,7 @@ function renderTimeSeriesChart(data) {
         'Tomato': { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },  // Red
         'Wheat': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' }   // Amber
     };
-    
+
     // Default fallback color
     const defaultColor = { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' };
 
@@ -577,7 +568,7 @@ function renderTimeSeriesChart(data) {
             backgroundColor: theme.bg,
             borderWidth: 3,
             tension: 0.4,
-            fill: false, 
+            fill: false,
             pointBackgroundColor: theme.border,
             pointRadius: 3,
             pointHoverRadius: 6
@@ -600,8 +591,8 @@ function renderTimeSeriesChart(data) {
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { 
-                        color: textColor, 
+                    labels: {
+                        color: textColor,
                         font: { family: 'Outfit, sans-serif', size: 13 },
                         usePointStyle: true,
                         boxWidth: 8
@@ -617,7 +608,7 @@ function renderTimeSeriesChart(data) {
                     boxPadding: 6,
                     usePointStyle: true,
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             return ` ${context.dataset.label}: ${context.parsed.y}%`;
                         }
                     }
@@ -633,10 +624,10 @@ function renderTimeSeriesChart(data) {
                     beginAtZero: true,
                     max: 100,
                     grid: { color: gridColor, borderDash: [5, 5], drawBorder: false },
-                    ticks: { 
-                        color: textColor, 
+                    ticks: {
+                        color: textColor,
                         font: { family: 'Outfit, sans-serif' },
-                        callback: function(value) { return value + '%'; }
+                        callback: function (value) { return value + '%'; }
                     },
                     title: { display: true, text: 'Overall Health Rate (%)', color: textColor, font: { size: 13 } }
                 }
