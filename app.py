@@ -239,5 +239,54 @@ def generate_heatmap():
         'results': results_list
     })
 
+@app.route('/api/time_series_data', methods=['GET'])
+def time_series_data():
+    import datetime
+    import random
+    
+    end_date = datetime.datetime.now()
+    dates = [(end_date - datetime.timedelta(days=i)).strftime('%m-%d') for i in range(29, -1, -1)]
+    
+    # Initialize mock health rates for 4 crops (0-100%, higher is better)
+    # Simulated scenario: Rice dipped due to disease then recovered, others fluctuate
+    crops_data = {
+        'Rice': {'health': 85.0, 'trend': -0.8},
+        'Cotton': {'health': 78.0, 'trend': 0.2},
+        'Tomato': {'health': 92.0, 'trend': -0.1},
+        'Wheat': {'health': 65.0, 'trend': 1.0}
+    }
+    
+    datasets = []
+    
+    for crop, data in crops_data.items():
+        health_scores = []
+        current_health = data['health']
+        trend = data['trend']
+        
+        for i in range(30):
+            # Mid-month dip for Rice
+            if crop == 'Rice' and 10 < i < 20:
+                current_health += trend - random.uniform(1, 4)
+            # Mid-month recovery for Wheat
+            elif crop == 'Wheat' and i > 15:
+                current_health += trend + random.uniform(0.5, 2)
+            else:
+                current_health += trend + random.uniform(-2, 2)
+                
+            # Clamp between 0 and 100
+            current_health = max(0, min(100, current_health))
+            health_scores.append(round(current_health, 1))
+            
+        datasets.append({
+            'label': crop,
+            'data': health_scores
+        })
+
+    response_data = {
+        'dates': dates,
+        'datasets': datasets
+    }
+    return jsonify(response_data)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
