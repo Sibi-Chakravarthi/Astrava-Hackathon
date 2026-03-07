@@ -7,40 +7,122 @@ const CONFIG = {
     API_URL: '/predict',
 };
 
-// --- DATA: Hardcoded Crop & Disease Definitions (Wait for User confirmation, standard placeholders for now) ---
-const CROP_DISEASES = {
+const CROP_DISEASES_KEYS = {
     'rice': [
-        { name: 'Rice Blast', desc: 'Apply Tricyclazole 75WP. Boost potassium and silica.' },
-        { name: 'Rice Leaf Blight', desc: 'Apply Copper Oxychloride. Reduce nitrogen.' },
-        { name: 'Rice Grain Discoloration', desc: 'Apply Propiconazole. Ensure proper drainage.' },
-        { name: 'Rice Pesticide Residue', desc: 'Stop pesticide application. Flush field with water.' }
+        { nameKey: 'dis_rice_blast', descKey: 'rec_rice_blast' },
+        { nameKey: 'dis_rice_blight', descKey: 'rec_rice_blight' },
+        { nameKey: 'dis_rice_grain', descKey: 'rec_rice_grain' },
+        { nameKey: 'dis_rice_pest', descKey: 'rec_rice_pest' }
     ],
     'cotton': [
-        { name: 'Cotton Bacterial Blight', desc: 'Apply Copper-based bactericide. Remove infected leaves.' },
-        { name: 'Cotton Leaf Curl Virus', desc: 'No cure — remove infected plants. Apply imidacloprid for whitefly control.' },
-        { name: 'Cotton Grey Mildew', desc: 'Apply Carbendazim. Improve air circulation.' },
-        { name: 'Cotton Alternaria Leaf Spot', desc: 'Apply Mancozeb. Avoid overhead irrigation.' },
-        { name: 'Cotton Wilt', desc: 'Drench soil with Carbendazim. Improve drainage.' }
+        { nameKey: 'dis_cotton_blight', descKey: 'rec_cotton_blight' },
+        { nameKey: 'dis_cotton_curl', descKey: 'rec_cotton_curl' },
+        { nameKey: 'dis_cotton_mildew', descKey: 'rec_cotton_mildew' },
+        { nameKey: 'dis_cotton_alternaria', descKey: 'rec_cotton_alternaria' },
+        { nameKey: 'dis_cotton_wilt', descKey: 'rec_cotton_wilt' }
     ],
     'tomato': [
-        { name: 'Tomato Early Blight', desc: 'Apply Chlorothalonil. Mulch around base of plant.' },
-        { name: 'Tomato Late Blight', desc: 'Apply Metalaxyl + Mancozeb immediately. Remove infected tissue.' },
-        { name: 'Tomato Bacterial Spot', desc: 'Apply Copper Hydroxide. Avoid working in wet conditions.' },
-        { name: 'Tomato Septoria Leaf Spot', desc: 'Apply Chlorothalonil or Mancozeb. Remove lower leaves.' },
-        { name: 'Tomato Mosaic Virus', desc: 'No cure — remove and destroy infected plants. Control aphids.' },
-        { name: 'Tomato Yellow Leaf Curl Virus', desc: 'No cure — remove infected plants. Apply thiamethoxam for whitefly.' },
-        { name: 'Tomato Leaf Mold', desc: 'Apply Copper Oxychloride. Reduce humidity.' },
-        { name: 'Tomato Spider Mite', desc: 'Apply Abamectin or neem oil. Increase humidity.' }
+        { nameKey: 'dis_tom_early', descKey: 'rec_tom_early' },
+        { nameKey: 'dis_tom_late', descKey: 'rec_tom_late' },
+        { nameKey: 'dis_tom_bact', descKey: 'rec_tom_bact' },
+        { nameKey: 'dis_tom_septoria', descKey: 'rec_tom_septoria' },
+        { nameKey: 'dis_tom_mosaic', descKey: 'rec_tom_mosaic' },
+        { nameKey: 'dis_tom_yellow', descKey: 'rec_tom_yellow' },
+        { nameKey: 'dis_tom_mold', descKey: 'rec_tom_mold' },
+        { nameKey: 'dis_tom_mite', descKey: 'rec_tom_mite' }
     ],
     'wheat': [
-        { name: 'Wheat Powdery Mildew', desc: 'Apply Tebuconazole. Avoid excess nitrogen.' },
-        { name: 'Wheat Septoria Leaf Blotch', desc: 'Apply Propiconazole. Remove crop debris after harvest.' },
-        { name: 'Wheat Stem Rust', desc: 'Apply Tebuconazole or Propiconazole immediately.' },
-        { name: 'Wheat Yellow Rust', desc: 'Apply Tebuconazole. Monitor weekly for spread.' }
+        { nameKey: 'dis_wheat_mildew', descKey: 'rec_wheat_mildew' },
+        { nameKey: 'dis_wheat_septoria', descKey: 'rec_wheat_septoria' },
+        { nameKey: 'dis_wheat_stem', descKey: 'rec_wheat_stem' },
+        { nameKey: 'dis_wheat_yellow', descKey: 'rec_wheat_yellow' }
     ]
 };
 
+let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
+
+function t(key) {
+    return (translations[currentLanguage] && translations[currentLanguage][key])
+        || translations['en'][key]
+        || key;
+}
+
+function translateDiseaseName(classNameStr) {
+    const defaultName = classNameStr.replace(/_/g, ' ');
+    for (const [key, value] of Object.entries(translations['en'])) {
+        if (key.startsWith('dis_') && value.toLowerCase() === defaultName.toLowerCase()) {
+            return t(key);
+        }
+    }
+    return defaultName;
+}
+
+function translateRecommendation(recStr) {
+    for (const [key, value] of Object.entries(translations['en'])) {
+        if (key.startsWith('rec_') && value === recStr) {
+            return t(key);
+        }
+    }
+    return recStr;
+}
+
+function setLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('preferredLanguage', lang);
+
+    if (translations[lang] && translations[lang]['app_title']) {
+        document.title = translations[lang]['app_title'];
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            el.innerHTML = translations[lang][key];
+        } else if (translations['en'][key]) {
+            el.innerHTML = translations['en'][key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            el.setAttribute('placeholder', translations[lang][key]);
+        } else if (translations['en'][key]) {
+            el.setAttribute('placeholder', translations['en'][key]);
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        if (translations[lang] && translations[lang][key]) {
+            el.setAttribute('title', translations[lang][key]);
+        } else if (translations['en'][key]) {
+            el.setAttribute('title', translations['en'][key]);
+        }
+    });
+
+    const activeCropBtn = document.querySelector('.btn-crop.active');
+    if (activeCropBtn) {
+        renderDiseases(activeCropBtn.getAttribute('data-crop'));
+    }
+
+    if (timeSeriesChartInstance) {
+        timeSeriesChartInstance.options.scales.y.title.text = t('chart_y_axis_title');
+        timeSeriesChartInstance.update();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Language
+    const langSelect = document.getElementById('languageSelector');
+    if (langSelect) {
+        langSelect.value = currentLanguage;
+        langSelect.addEventListener('change', (e) => {
+            setLanguage(e.target.value);
+        });
+    }
+    setLanguage(currentLanguage);
+
     initThemeToggle();
     initNavigation();
     initFarmerPortal();
@@ -165,7 +247,7 @@ function initFarmerPortal() {
     function handleFarmerUpload(file) {
         // Validate
         if (!file.type.startsWith('image/')) {
-            alert("Please upload a valid image file.");
+            alert(t('err_invalid_image'));
             return;
         }
 
@@ -195,7 +277,7 @@ async function analyzeImage(file) {
         });
 
         if (!response.ok) {
-            let errorText = "Server error occurred.";
+            let errorText = t('err_server_error');
             try {
                 const errData = await response.json();
                 if (errData.error) errorText = errData.error;
@@ -219,7 +301,7 @@ async function analyzeImage(file) {
     } catch (error) {
         console.error("Analysis Error:", error);
         document.getElementById('scanningOverlay').classList.add('hidden');
-        alert("Analysis failed: " + error.message);
+        alert(t('err_analysis_failed') + error.message);
     }
 }
 
@@ -249,14 +331,14 @@ function renderFarmerResults(data) {
     // Fallback if healthy or not finding anything sever
     if (maxSeverity === 0 && data.predictions.length > 0) {
         dominantDisease = data.predictions[0].class_name; // might be "healthy"
-        recommendations.push(data.predictions[0].recommendation || "No immediate action required.");
+        recommendations.push(data.predictions[0].recommendation || t('fallback_healthy'));
     }
 
     // 3. Update DOM
     document.getElementById('farmerResultsPlaceholder').classList.add('hidden');
     document.getElementById('farmerResultsContent').classList.remove('hidden');
 
-    document.getElementById('farmerDiseaseName').innerText = dominantDisease.replace(/_/g, ' ');
+    document.getElementById('farmerDiseaseName').innerText = translateDiseaseName(dominantDisease);
 
     // Animate Circle
     const circle = document.getElementById('farmerSeverityCircle');
@@ -276,13 +358,14 @@ function renderFarmerResults(data) {
     recList.innerHTML = ''; // clear old
 
     if (recommendations.length === 0) {
-        recList.innerHTML = `<div class="rec-item"><span>No specific treatment found.</span></div>`;
+        recList.innerHTML = `<div class="rec-item"><span>${t('fallback_no_treatment')}</span></div>`;
     } else {
         recommendations.forEach(rec => {
+            const finalRec = translateRecommendation(rec);
             recList.innerHTML += `
                 <div class="rec-item">
-                    <strong>Primary Treatment</strong>
-                    <span>${rec}</span>
+                    <strong>${t('primary_treatment_label')}</strong>
+                    <span>${finalRec}</span>
                 </div>
             `;
         });
@@ -334,24 +417,24 @@ function renderDiseases(cropKey) {
     const accordion = document.getElementById('diseaseAccordion');
     accordion.innerHTML = ''; // clear previous
 
-    const diseases = CROP_DISEASES[cropKey] || [];
+    const diseasesKeys = CROP_DISEASES_KEYS[cropKey] || [];
 
-    if (diseases.length === 0) {
-        accordion.innerHTML = '<p class="text-muted" style="padding:1rem;">No data available.</p>';
+    if (diseasesKeys.length === 0) {
+        accordion.innerHTML = `<p class="text-muted" style="padding:1rem;">${t('no_data_available')}</p>`;
         return;
     }
 
-    diseases.forEach((disease, idx) => {
+    diseasesKeys.forEach((diseaseKeyObj, idx) => {
         const item = document.createElement('div');
         item.className = 'accordion-item';
 
         item.innerHTML = `
             <div class="accordion-header">
-                <span>${disease.name}</span>
+                <span>${t(diseaseKeyObj.nameKey)}</span>
                 <i class="ri-arrow-down-s-line icon-chevron"></i>
             </div>
             <div class="accordion-content">
-                <p style="padding-bottom: 1rem;">${disease.desc}</p>
+                <p style="padding-bottom: 1rem;">${t(diseaseKeyObj.descKey)}</p>
             </div>
         `;
 
@@ -431,11 +514,11 @@ function initLocationControls() {
 
     useLocationBtn.addEventListener('click', () => {
         if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser.');
+            alert(t('err_geo_unsupported'));
             return;
         }
 
-        useLocationBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Locating...';
+        useLocationBtn.innerHTML = `<i class="ri-loader-4-line ri-spin"></i> ${t('status_locating')}`;
         useLocationBtn.disabled = true;
 
         navigator.geolocation.getCurrentPosition(
@@ -453,14 +536,14 @@ function initLocationControls() {
                 updateDashboardHeatmap(coordsString);
 
                 // Reset button
-                useLocationBtn.innerHTML = '<i class="ri-focus-3-line"></i> Use Current Location';
+                useLocationBtn.innerHTML = `<i class="ri-focus-3-line"></i> <span data-i18n="btn_use_location" id="btnUseLocText">${t('btn_use_location')}</span>`;
                 useLocationBtn.disabled = false;
             },
             (error) => {
                 console.error("Geolocation error:", error);
-                alert('Unable to retrieve your location. Please ensure location services are enabled.');
+                alert(t('err_geo_failed'));
                 // Reset button
-                useLocationBtn.innerHTML = '<i class="ri-focus-3-line"></i> Use Current Location';
+                useLocationBtn.innerHTML = `<i class="ri-focus-3-line"></i> <span data-i18n="btn_use_location" id="btnUseLocText">${t('btn_use_location')}</span>`;
                 useLocationBtn.disabled = false;
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -511,26 +594,26 @@ async function fetchTimeSeriesData() {
     try {
         const syncBtn = document.getElementById('timeSeriesSyncBtn');
         if (syncBtn) {
-            syncBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Loading...';
+            syncBtn.innerHTML = `<i class="ri-loader-4-line ri-spin"></i> ${t('status_loading')}`;
             syncBtn.disabled = true;
         }
 
         const response = await fetch('/api/time_series_data');
-        if (!response.ok) throw new Error("Failed to fetch time series data");
+        if (!response.ok) throw new Error(t('err_fetch_time_series'));
         const data = await response.json();
 
         renderTimeSeriesChart(data);
 
         if (syncBtn) {
-            syncBtn.innerHTML = '<i class="ri-refresh-line"></i> Refresh Data';
+            syncBtn.innerHTML = `<i class="ri-refresh-line"></i> <span data-i18n="btn_refresh_data">${t('btn_refresh_data')}</span>`;
             syncBtn.disabled = false;
         }
     } catch (error) {
         console.error("Error fetching time series data:", error);
-        alert("Failed to load time series data.");
+        alert(t('err_load_time_series_alert'));
         const syncBtn = document.getElementById('timeSeriesSyncBtn');
         if (syncBtn) {
-            syncBtn.innerHTML = '<i class="ri-refresh-line"></i> Refresh Data';
+            syncBtn.innerHTML = `<i class="ri-refresh-line"></i> <span data-i18n="btn_refresh_data">${t('btn_refresh_data')}</span>`;
             syncBtn.disabled = false;
         }
     }
@@ -629,7 +712,7 @@ function renderTimeSeriesChart(data) {
                         font: { family: 'Outfit, sans-serif' },
                         callback: function (value) { return value + '%'; }
                     },
-                    title: { display: true, text: 'Overall Health Rate (%)', color: textColor, font: { size: 13 } }
+                    title: { display: true, text: t('chart_y_axis_title'), color: textColor, font: { size: 13 } }
                 }
             }
         }

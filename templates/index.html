@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Astrava - Intelligent Crop Disease System</title>
+    <title data-i18n="app_title">AgriVision - Intelligent Crop Disease System</title>
     <!-- Modern Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
@@ -30,28 +30,28 @@
                 <div class="brand-logo">
                     <i class="ri-leaf-fill"></i>
                 </div>
-                <h2>Astrava</h2>
+                <h2 data-i18n="brand_name">AgriVision</h2>
             </div>
 
             <div class="nav-links">
                 <button class="nav-item active" data-target="farmer-portal" id="navFarmer">
                     <i class="ri-user-smile-line"></i>
-                    <span>Farmer Portal</span>
+                    <span data-i18n="nav_farmer_portal">Farmer Portal</span>
                 </button>
                 <button class="nav-item" data-target="drone-dashboard" id="navDrone">
                     <i class="ri-flight-takeoff-line"></i>
-                    <span>Drone Dashboard</span>
+                    <span data-i18n="nav_drone_dashboard">Drone Dashboard</span>
                 </button>
                 <button class="nav-item" data-target="time-series-portal" id="navTimeSeries">
                     <i class="ri-line-chart-line"></i>
-                    <span>Time Series Analysis</span>
+                    <span data-i18n="nav_time_series">Time Series Analysis</span>
                 </button>
             </div>
 
             <div class="nav-footer">
                 <a href="https://t.me/AgraVision_bot" target="_blank" class="telegram-btn">
                     <i class="ri-telegram-fill"></i>
-                    <span>Astrava Bot</span>
+                    <span data-i18n="nav_telegram_bot">AgriVision Bot</span>
                 </a>
             </div>
         </nav>
@@ -61,7 +61,16 @@
 
             <!-- Top Navigation Menu -->
             <div class="top-nav">
-                <button id="themeToggle" class="theme-toggle-btn" title="Toggle Dark Mode">
+                <div class="lang-selector-container" style="margin-right: 1rem;">
+                    <select id="languageSelector" class="lang-select">
+                        <option value="en" data-i18n="lang_en">English</option>
+                        <option value="hi" data-i18n="lang_hi">हिंदी</option>
+                        <option value="ta" data-i18n="lang_ta">தமிழ்</option>
+                        <option value="ka" data-i18n="lang_ka">ಕನ್ನಡ</option>
+                    </select>
+                </div>
+                <button id="themeToggle" class="theme-toggle-btn" title="Toggle Dark Mode"
+                    data-i18n-title="theme_toggle">
                     <i class="ri-moon-fill" id="themeIcon"></i>
                 </button>
             </div>
@@ -70,8 +79,9 @@
             <section id="farmer-portal" class="view-section active">
                 <header class="section-header">
                     <div>
-                        <h1>Farmer Diagnosis Portal</h1>
-                        <p>Upload a single leaf image for instant disease analysis & severity scoring.</p>
+                        <h1 data-i18n="farmer_header_title">Farmer Diagnosis Portal</h1>
+                        <p data-i18n="farmer_header_desc">Upload a single leaf image for instant disease analysis &
+                            severity scoring.</p>
                     </div>
                 </header>
 
@@ -83,9 +93,10 @@
                             <div class="upload-icon">
                                 <i class="ri-image-add-line"></i>
                             </div>
-                            <h3>Drag & Drop Image</h3>
-                            <p>or <span class="text-highlight">click to browse</span></p>
-                            <span class="file-hint">Supports JPG, PNG (Max 10MB)</span>
+                            <h3 data-i18n="upload_drag_drop">Drag & Drop Image</h3>
+                            <p><span data-i18n="upload_or">or </span><span class="text-highlight"
+                                    data-i18n="upload_browse">click to browse</span></p>
+                            <span class="file-hint" data-i18n="upload_supports">Supports JPG, PNG (Max 10MB)</span>
                         </div>
 
                         <div class="preview-zone hidden" id="farmerPreviewZone">
@@ -96,7 +107,7 @@
                                 </div>
                             </div>
                             <button class="btn btn-secondary" id="farmerResetBtn">
-                                <i class="ri-refresh-line"></i> New Analysis
+                                <i class="ri-refresh-line"></i> <span data-i18n="btn_new_analysis">New Analysis</span>
                             </button>
                         </div>
                     </div>
@@ -105,7 +116,7 @@
                     <div class="glass-panel results-card">
                         <div class="results-placeholder" id="farmerResultsPlaceholder">
                             <i class="ri-microscope-line"></i>
-                            <p>Upload an image to see the analysis</p>
+                            <p data-i18n="results_placeholder">Upload an image to see the analysis</p>
                         </div>
 
                         <div class="results-content hidden" id="farmerResultsContent">
@@ -121,14 +132,15 @@
                                     <div class="percentage" id="farmerSeverityValue">0<span>%</span></div>
                                 </div>
                                 <div class="severity-info">
-                                    <h3 id="farmerDiseaseName">Detecting...</h3>
-                                    <p>Maximum Severity Found</p>
+                                    <h3 id="farmerDiseaseName" data-i18n="results_detecting">Detecting...</h3>
+                                    <p data-i18n="results_max_severity">Severity Found</p>
                                 </div>
                             </div>
 
                             <!-- Recommendations -->
                             <div class="recommendations-box">
-                                <h4><i class="ri-medicine-bottle-line"></i> Treatment Protocol</h4>
+                                <h4><i class="ri-medicine-bottle-line"></i> <span
+                                        data-i18n="results_treatment_protocol">Treatment Protocol</span></h4>
                                 <div class="rec-list" id="farmerRecList">
                                     <!-- Populated via JS -->
                                 </div>
@@ -142,11 +154,12 @@
             <section id="drone-dashboard" class="view-section hidden">
                 <header class="section-header">
                     <div>
-                        <h1>Drone Operations Hub</h1>
-                        <p>Aggregated field data and deep-learning disease detection models.</p>
+                        <h1 data-i18n="drone_header_title">Drone Operations Hub</h1>
+                        <p data-i18n="drone_header_desc">Aggregated field data and deep-learning disease detection
+                            models.</p>
                     </div>
                     <button class="btn btn-primary" id="droneSyncBtn">
-                        <i class="ri-refresh-line"></i> Sync Latest Data
+                        <i class="ri-refresh-line"></i> <span data-i18n="btn_sync_latest">Sync Latest Data</span>
                     </button>
                 </header>
 
@@ -155,33 +168,36 @@
                         <div class="input-group">
                             <i class="ri-map-pin-line"></i>
                             <input type="text" id="farmCoordinates"
+                                data-i18n-placeholder="input_coordinates_placeholder"
                                 placeholder="Enter Coordinates (e.g. 34.05, -118.24)" />
                         </div>
                         <button class="btn btn-secondary" id="useLocationBtn">
-                            <i class="ri-focus-3-line"></i> Use Current Location
+                            <i class="ri-focus-3-line"></i> <span data-i18n="btn_use_location" id="btnUseLocText">Use
+                                Current Location</span>
                         </button>
                     </div>
                     <div id="locationDisplay" class="location-display hidden">
-                        <span class="text-success"><i class="ri-check-line"></i> Location Verified:</span>
+                        <span class="text-success"><i class="ri-check-line"></i> <span
+                                data-i18n="location_verified">Location Verified:</span></span>
                         <strong id="coordsText">--</strong>
                     </div>
                 </div>
 
                 <!-- Crop Selection -->
                 <div class="crop-selector glass-panel">
-                    <h3>Select Crop Model</h3>
+                    <h3 data-i18n="crop_select_title">Select Crop Model</h3>
                     <div class="crop-buttons">
                         <button class="btn-crop active" data-crop="rice">
-                            <i class="ri-seedling-fill"></i> Rice
+                            <i class="ri-seedling-fill"></i> <span data-i18n="crop_rice">Rice</span>
                         </button>
                         <button class="btn-crop" data-crop="cotton">
-                            <i class="ri-leaf-fill"></i> Cotton
+                            <i class="ri-leaf-fill"></i> <span data-i18n="crop_cotton">Cotton</span>
                         </button>
                         <button class="btn-crop" data-crop="tomato">
-                            <i class="ri-restaurant-fill"></i> Tomato
+                            <i class="ri-restaurant-fill"></i> <span data-i18n="crop_tomato">Tomato</span>
                         </button>
                         <button class="btn-crop" data-crop="wheat">
-                            <i class="ri-plant-fill"></i> Wheat
+                            <i class="ri-plant-fill"></i> <span data-i18n="crop_wheat">Wheat</span>
                         </button>
                     </div>
                 </div>
@@ -190,7 +206,8 @@
                     <!-- Disease Index -->
                     <div class="disease-index glass-panel">
                         <div class="panel-heading">
-                            <h3><i class="ri-bug-line"></i> Target Diseases (<span id="activeCropName">Rice</span>)
+                            <h3><i class="ri-bug-line"></i> <span data-i18n="drone_target_diseases">Target
+                                    Diseases</span> (<span id="activeCropName" data-i18n="crop_rice">Rice</span>)
                             </h3>
                         </div>
                         <div class="accordion" id="diseaseAccordion">
@@ -201,20 +218,21 @@
                     <!-- Scan Results & Heatmap -->
                     <div class="field-analysis glass-panel">
                         <div class="panel-heading">
-                            <h3><i class="ri-map-pin-line"></i> Field Scan Analysis</h3>
+                            <h3><i class="ri-map-pin-line"></i> <span data-i18n="drone_field_analysis">Field Scan
+                                    Analysis</span></h3>
                         </div>
 
                         <div class="stats-row">
                             <div class="stat-box">
-                                <span class="stat-label">Images Processed</span>
+                                <span class="stat-label" data-i18n="drone_stat_processed">Images Processed</span>
                                 <span class="stat-value">1,248</span>
                             </div>
                             <div class="stat-box">
-                                <span class="stat-label">Infected Areas</span>
+                                <span class="stat-label" data-i18n="drone_stat_infected">Infected Areas</span>
                                 <span class="stat-value text-danger">42</span>
                             </div>
                             <div class="stat-box">
-                                <span class="stat-label">Avg Severity</span>
+                                <span class="stat-label" data-i18n="drone_stat_severity">Avg Severity</span>
                                 <span class="stat-value text-warning">18%</span>
                             </div>
                         </div>
@@ -222,16 +240,18 @@
                         <div class="heatmap-container">
                             <!-- Interactive Heatmap Mockup -->
                             <div class="heatmap-mockup" id="dashboardHeatmap">
-                                <div class="overlay-text" id="dashboardFieldText">Field Sector Alpha</div>
+                                <div class="overlay-text" id="dashboardFieldText" data-i18n="drone_mockup_field">Field
+                                    Sector Alpha</div>
                             </div>
                         </div>
 
                         <div class="action-row">
                             <button class="btn btn-outline">
-                                <i class="ri-file-chart-line"></i> View Detailed Report
+                                <i class="ri-file-chart-line"></i> <span data-i18n="btn_view_report">View Detailed
+                                    Report</span>
                             </button>
                             <button class="btn btn-primary">
-                                <i class="ri-file-download-line"></i> Export CSV
+                                <i class="ri-file-download-line"></i> <span data-i18n="btn_export_csv">Export CSV</span>
                             </button>
                         </div>
                     </div>
@@ -242,17 +262,18 @@
             <section id="time-series-portal" class="view-section hidden">
                 <header class="section-header">
                     <div>
-                        <h1>Time Series Analysis</h1>
-                        <p>Track disease severity and crop health trends over time.</p>
+                        <h1 data-i18n="time_header_title">Time Series Analysis</h1>
+                        <p data-i18n="time_header_desc">Track disease severity and crop health trends over time.</p>
                     </div>
                     <button class="btn btn-primary" id="timeSeriesSyncBtn">
-                        <i class="ri-refresh-line"></i> Refresh Data
+                        <i class="ri-refresh-line"></i> <span data-i18n="btn_refresh_data">Refresh Data</span>
                     </button>
                 </header>
 
                 <div class="glass-panel" style="margin-top: 2rem;">
                     <div class="panel-heading">
-                        <h3><i class="ri-funds-line"></i> Overall Crop Health Trends</h3>
+                        <h3><i class="ri-funds-line"></i> <span data-i18n="time_overall_trends">Overall Crop Health
+                                Trends</span></h3>
                     </div>
                     <div class="chart-container" style="position: relative; height:400px; width:100%; padding: 1rem;">
                         <canvas id="timeSeriesChart"></canvas>
@@ -263,6 +284,7 @@
         </main>
     </div>
 
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 

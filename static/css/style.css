@@ -787,6 +787,23 @@ body {
     background: white;
 }
 
+/* Language Selector Styles */
+.lang-select {
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.lang-select:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
 /* Dark Theme Overrides */
 [data-theme="dark"] {
     --bg-gradient: linear-gradient(135deg, #050505 0%, #111111 100%);
@@ -795,6 +812,17 @@ body {
     --primary-dark: #e9ecef;
     --text-main: #ffffff;
     --text-muted: #adb5bd;
+}
+
+[data-theme="dark"] .lang-select {
+    background: var(--glass-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+[data-theme="dark"] .lang-select option {
+    background: #111111 !important;
+    color: var(--text-main) !important;
 }
 
 /* ====== Field Health Overlay ====== */
