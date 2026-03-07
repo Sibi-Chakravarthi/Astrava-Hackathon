@@ -1,10 +1,34 @@
-# 🌿 AI Crop Disease Detection System
+# 🌿 Astrava - Intelligent Crop Disease Detection System
 
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![YOLO11](https://img.shields.io/badge/YOLO-11-success.svg)](https://github.com/ultralytics/ultralytics)
 [![Roboflow](https://img.shields.io/badge/Dataset-Roboflow-purple.svg)](https://roboflow.com)
+[![Flask](https://img.shields.io/badge/Flask-Backend-lightgrey.svg)](https://flask.palletsprojects.com/)
+[![Telegram](https://img.shields.io/badge/Telegram-Bot-blue.svg)](https://core.telegram.org/bots)
 
-A comprehensive AI system designed for detecting and analyzing crop diseases from drone imagery. This project enables precision agriculture through pixel-level disease identification, detailed affected area calculations, automated fertilizer recommendations, and temporal health trend analysis.
+Astrava is a comprehensive, multi-modal AI system designed to empower farmers and field authorities with precision agriculture tools. By analyzing crop imagery—whether from smartphones or drones—Astrava provides pixel-level disease identification, detailed severity estimation, actionable treatment recommendations, and aggregated field health tracking.
+
+Our ultimate goal is to bridge the gap between advanced deep learning algorithms and accessible farming tools, ensuring that farmers can secure their yields with minimal friction, regardless of language barriers or technical expertise.
+
+---
+
+## 🚀 What We Are Doing
+
+Astrava serves multiple facets of the agricultural monitoring pipeline:
+
+1. **Farmer Portal & Web Dashboard:** An intuitive web application built with Flask and Vanilla JS/CSS outlining a diagnostic flow. Users can upload crop leaf images to receive immediate YOLO-powered bounded-box tracking, dynamic severity scoring (powered by advanced HSV masking techniques in OpenCV), and immediate agronomist-verified treatment plans.
+2. **Field Health Overlay (Drone Dashboard):** For large-scale precision agriculture, Astrava processes bulk imagery (often captured via drones). It synthesizes the data into visual heatmap overlays that highlight "hotspots" of high disease severity across different crop areas, allowing agronomists to identify critically infected field sectors swiftly.
+3. **Multilingual Telegram Assistant (`@AgraVision_bot`):** Accessibility is key. We have built an integrated Telegram Bot capable of accepting field images from farmers via chat. The bot analyzes the crop, extracts severity and treatment steps, and provides responses via **translated text and Edge-TTS voice audio** in **8 Indian languages** (English, Hindi, Tamil, Telugu, Kannada, Malayalam, Marathi, and Bengali).
+
+---
+
+## ✨ Key Features & Technical Capabilities
+
+* **Multi-Crop Support (21 Classes):** We accurately identify specific diseases affecting **Rice, Cotton, Tomato, and Wheat**, as well as accurately classifying healthy leaves.
+* **Precise AI Object Detection:** Utilizing a custom-trained **YOLO11** model, Astrava detects intricate signs of crop illness and establishes accurate bounding boxes even under varied lighting conditions.
+* **Computer Vision Severity Scoring:** Once a diseased spot is located by YOLO, internal logic uses precise OpenCV color-space (HSV) masks to quantify the exact ratio of the discolored disease pixels relative to the total leaf surface, providing an exact `Severity %`.
+* **Tailored Actionable Insights:** A robust recommendation engine maps detected diseases to clear, practical treatment methods, fertilizer recommendations, and preventative measures. All treatments refer to trusted agricultural sources.
+* **Accessible Voice Reports:** The seamless integration of Google Translate and Microsoft Edge TTS provides spoken-word agricultural assistance to farmers right on their standard messaging apps.
 
 ---
 
@@ -24,13 +48,20 @@ The models are trained using comprehensive, high-quality datasets for multiple c
 ## 📁 Project Resources
 
 - ☁️ **Google Drive Workspace:** [Access Project Files, Models, & Data](https://drive.google.com/drive/folders/1Y2sDvTgUGfcGdzWJXKjaM3DWuNGc3YeN?usp=drive_link)
+- 💬 **Telegram Bot Interface:** Start chatting with the bot globally via [@AgraVision_bot](https://t.me/AgraVision_bot)
 
 ---
 
-## 🚀 Key Features
+## �️ Architecture Overview
 
-* **Multi-Crop Support:** Advanced detection across Rice, Cotton, Tomato, and Wheat.
-* **Instance Segmentation:** Powered by YOLO11-Seg for precise, pixel-level disease mapping and severity estimation.
-* **Drone Data Pipeline:** Complete pipeline from drone imagery acquisition to farmer-facing dashboard insights.
-* **Geofencing & Mapping:** Unity C# module for precise field boundaries and georeferenced disease tracking.
-* **Actionable Insights:** Calculates affected area percentages and provides tailored fertilizer recommendations.
+- **`app.py`**: The core Flask backend routing Web Dashboard API calls (`/predict`, `/generate_heatmap`) directly to inference logic.
+- **`models/best.pt`**: Our optimized YOLOv11 weights for crop disease identification.
+- **`modules/`**:
+  - `severity.py`: Post-processing computer vision algorithms to isolate brown/disease pixels against green/leaf background pixels to compute quantifiable severity levels.
+  - `recommendation.py`: Intelligent lookup system mapping YOLO class detections to verified agricultural solutions.
+- **`scripts/bot.py`**: The asynchronous Telegram bot logic operating on `python-telegram-bot`, capable of edge translation and voice synthesis.
+- **`templates/` & `static/`**: High-fidelity frontend design ensuring a smooth Farmer Portal experience.
+
+---
+
+*Built with ❤️ for resilient and precise agriculture.*
