@@ -655,11 +655,10 @@ body {
     border-radius: 12px;
     position: relative;
     overflow: hidden;
-    /* Simulate a field aerial view */
-    background-image: linear-gradient(45deg, #d8e2dc 25%, transparent 25%, transparent 75%, #d8e2dc 75%, #d8e2dc),
-        linear-gradient(45deg, #d8e2dc 25%, transparent 25%, transparent 75%, #d8e2dc 75%, #d8e2dc);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
+    /* Simulate a field aerial view using demoimage.png */
+    background-image: url('../images/demoimage.png');
+    background-size: cover;
+    background-position: center;
 }
 
 .heatmap-layer {
