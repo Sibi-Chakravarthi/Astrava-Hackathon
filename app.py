@@ -137,5 +137,107 @@ def predict():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+@app.route('/generate_heatmap', methods=['POST'])
+def generate_heatmap():
+    if 'files' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+        
+    files = request.files.getlist('files')
+    if not files or files[0].filename == '':
+        return jsonify({'error': 'No selected files'}), 400
+        
+    results_list = []
+    
+    # Define colors for different crops/diseases based on class id
+    # (Just an illustrative color mapping)
+    colors = [
+        (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), 
+        (255, 0, 255), (0, 255, 255), (128, 0, 0), (0, 128, 0),
+        (0, 0, 128), (128, 128, 0), (128, 0, 128), (0, 128, 128),
+        (255, 165, 0), (255, 192, 203), (173, 216, 230)
+    ]
+    
+    for file in files:
+        try:
+            in_memory_file = file.read()
+            nparr = np.frombuffer(in_memory_file, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if img is None:
+                continue
+
+            if model is None:
+                return jsonify({'error': 'Model not loaded'}), 500
+                
+            results = model.predict(source=img, save=False, conf=0.25)
+            result = results[0]
+            
+            boxes_formatted = []
+            for box in result.boxes:
+                x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
+                cls_id = int(box.cls[0].item())
+                boxes_formatted.append({
+                    'class': cls_id,
+                    'bbox': [int(x1), int(y1), int(x2), int(y2)]
+                })
+
+            severity_results = calculate_severity_from_boxes(img, boxes_formatted)
+            if severity_results is None:
+                severity_results = []
+                
+            # Create a blank image for the heatmap mask
+            heatmap_mask = np.zeros_like(img, dtype=np.uint8)
+                
+            for i, box_info in enumerate(boxes_formatted):
+                cls_id = box_info['class']
+                x1, y1, x2, y2 = map(int, box_info['bbox'])
+                
+                severity_score = 0.0
+                if i < len(severity_results):
+                    severity_score = severity_results[i].get('severity', 0.0)
+                    
+                # Color based on class
+                color = colors[cls_id % len(colors)]
+                # Intensity based on severity (max brightness 255, min 100 to still be visible)
+                # Map severity (0-100) to intensity multiplier
+                intensity = int(100 + (severity_score / 100.0) * 155)
+                # apply intensity to color
+                color_with_intensity = (
+                    int(color[0] * intensity / 255),
+                    int(color[1] * intensity / 255),
+                    int(color[2] * intensity / 255)
+                )
+                
+                # Draw filled circle at the center of the bounding box
+                cx = (x1 + x2) // 2
+                cy = (y1 + y2) // 2
+                radius = max(min(x2 - x1, y2 - y1) // 2, 20)
+                
+                cv2.circle(heatmap_mask, (cx, cy), radius, color_with_intensity, -1)
+                
+            # Apply Gaussian Blur to the heatmap mask to create glowing effect
+            heatmap_mask = cv2.GaussianBlur(heatmap_mask, (101, 101), 0)
+            
+            # Overlay heatmap mask onto original image using alpha blending
+            alpha = 0.6
+            cv2.addWeighted(heatmap_mask, alpha, img, 1 - alpha, 0, img)
+            
+            _, buffer = cv2.imencode('.jpg', img)
+            img_base64 = base64.b64encode(buffer).decode('utf-8')
+            
+            results_list.append({
+                'filename': file.filename,
+                'image': f'data:image/jpeg;base64,{img_base64}'
+            })
+
+        except Exception as e:
+            print(f"Error processing heatmap image: {e}")
+            continue
+
+    return jsonify({
+        'success': True,
+        'results': results_list
+    })
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

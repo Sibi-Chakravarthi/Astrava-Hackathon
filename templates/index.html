@@ -40,6 +40,10 @@
                     <i class="ri-flight-takeoff-line"></i>
                     <span>Drone Dashboard</span>
                 </button>
+                <button class="nav-item" data-target="heatmap-portal" id="navHeatmap">
+                    <i class="ri-fire-line"></i>
+                    <span>Heatmap</span>
+                </button>
             </div>
 
             <div class="nav-footer">
@@ -215,6 +219,36 @@
                                 <i class="ri-file-download-line"></i> Export CSV
                             </button>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== HEATMAP PORTAL ====== -->
+            <section id="heatmap-portal" class="view-section hidden">
+                <header class="section-header">
+                    <div>
+                        <h1>Bulk Heatmap Analysis</h1>
+                        <p>Upload bulk drone images to generate disease heatmaps based on crop class and severity.</p>
+                    </div>
+                </header>
+
+                <div class="heatmap-panel glass-panel">
+                    <div class="upload-zone" id="heatmapUploadZone">
+                        <input type="file" id="heatmapImageInput" accept="image/*" multiple hidden>
+                        <div class="upload-icon">
+                            <i class="ri-image-add-line"></i>
+                        </div>
+                        <h3>Upload Multiple Images</h3>
+                        <p>Drag & Drop or <span class="text-highlight">click to browse</span></p>
+                    </div>
+
+                    <div class="processing-overlay hidden" id="heatmapProcessing">
+                        <div class="loader-spinner"></div>
+                        <p>Generating Heatmaps...</p>
+                    </div>
+
+                    <div class="heatmap-gallery hidden" id="heatmapGallery">
+                        <!-- Populated via JS -->
                     </div>
                 </div>
             </section>

@@ -798,6 +798,78 @@ body {
     --text-muted: #adb5bd;
 }
 
+/* ====== Heatmap Portal ====== */
+.heatmap-panel {
+    padding: 2rem;
+    min-height: 400px;
+    position: relative;
+    border-radius: 20px;
+}
+
+.heatmap-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.heatmap-item {
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.heatmap-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.heatmap-item .file-name {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-align: center;
+    border-top: 1px solid #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.processing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 20px;
+}
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--glass-border);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 [data-theme="dark"] body {
     background-image:
         radial-gradient(at 40% 20%, rgb(43, 52, 45) 0px, transparent 50%),
